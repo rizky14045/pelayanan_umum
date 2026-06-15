@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Login Form</title>
+	<title>Login Form Pelayanan Umum</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -96,7 +96,6 @@
 <!--===============================================================================================-->
 	<script src="{{ asset('vendor/loginbootstrap3/js/main.js') }}"></script>
 
-{{-- test push  --}}
 
 </body>
 </html>
