@@ -2,6 +2,13 @@
 @section('content')
 @php
 $user = App\Models\Karyawan::where('id', auth()->guard('front')->id())->first();
+$avatarName = trim($user->nama);
+$avatarWords = preg_split('/\s+/', $avatarName);
+$avatarInitials = count($avatarWords) >= 2
+    ? strtoupper(substr($avatarWords[0], 0, 1) . substr($avatarWords[1], 0, 1))
+    : strtoupper(substr($avatarName, 0, 2));
+$avatarColors = ['#F45B69', '#3E92CC', '#2E8B57', '#D46A6A', '#8E44AD', '#E67E22', '#16A085', '#C0392B', '#27AE60', '#D35400', '#6C5CE7', '#00A8A8'];
+$avatarColor = $avatarColors[crc32($avatarName) % count($avatarColors)];
 @endphp
 <style>
     tr td:last-child,
@@ -10,6 +17,18 @@ $user = App\Models\Karyawan::where('id', auth()->guard('front')->id())->first();
         width: auto;
         white-space: nowrap;
         vertical-align: middle;
+    }
+    .user-profile-avatar .avatar-initials-lg {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        color: #fff;
+        font-size: 42px;
+        font-weight: 700;
+        margin: 0 auto;
     }
 </style>
 <div class="container">
@@ -20,8 +39,7 @@ $user = App\Models\Karyawan::where('id', auth()->guard('front')->id())->first();
         <div class="col-md-3">
             <aside class="user-profile-sidebar">
                 <div class="user-profile-avatar text-center">
-                    <img src="{{asset('vendor/frontend')}}/img/amaze_300x300.jpg" alt="Image Alternative text"
-                        title="AMaze" />
+                    <span class="avatar-initials-lg" style="background-color: {{ $avatarColor }};">{{ $avatarInitials }}</span>
                     <h5>{{$user->nama}}</h5>
                     <p>{{$user->jabatan}}</p>
                 </div>

@@ -15,6 +15,8 @@
                             </label>
                             <div class="form-field">
                                 <textarea name="tujuan" id="input-tujuan" cols="30" rows="4" class="form-control" required></textarea>
+                                <input type="hidden" name="latlng" id="input-latlng">
+                                <small class="text-danger">Ketik lalu pilih salah satu lokasi yang muncul di daftar saran</small>
                             </div>
                         </div>
                         <div id="googleMap" style="width:100%;height:300px;"></div>
@@ -62,6 +64,22 @@
                                             </option>
                                             @endforeach
                                         </select> --}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="jenis_perjalanan">
+                                        Jenis Perjalanan <span style="color:red;">*</span>
+                                    </label>
+                                    <div class="form-field">
+                                        <select class="form-control" name="jenis_perjalanan" id="jenis_perjalanan" required>
+                                            <option value="" disabled selected>Pilih Jenis Perjalanan</option>
+                                            <option value="Pergi Saja">Pergi Saja</option>
+                                            <option value="Pulang Pergi">Pulang Pergi</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -194,7 +212,45 @@
 
   var mapOptions = {}
   var input2 = document.getElementById("input-tujuan");
-  new google.maps.places.Autocomplete(input2, mapOptions);
+  var autocomplete = new google.maps.places.Autocomplete(input2, mapOptions);
+  var inputLatlng = document.getElementById("input-latlng");
+  var INVALID_TUJUAN_MESSAGE = "Pilih salah satu lokasi tujuan dari daftar saran yang muncul.";
+  var justSelectedPlace = false;
+
+  // A valid place was picked from the Google suggestion list
+  autocomplete.addListener('place_changed', function () {
+    var place = autocomplete.getPlace();
+    justSelectedPlace = true;
+
+    if (!place || !place.geometry || !place.geometry.location) {
+      inputLatlng.value = "";
+      input2.setCustomValidity(INVALID_TUJUAN_MESSAGE);
+      return;
+    }
+
+    inputLatlng.value = place.geometry.location.lat() + ',' + place.geometry.location.lng();
+    input2.setCustomValidity("");
+  });
+
+  // Typing manually (not picking a suggestion) invalidates the previously confirmed location
+  input2.addEventListener('input', function () {
+    if (justSelectedPlace) {
+      justSelectedPlace = false;
+      return;
+    }
+    inputLatlng.value = "";
+    input2.setCustomValidity(input2.value.trim().length > 0 ? INVALID_TUJUAN_MESSAGE : "");
+  });
+
+  // Safety net in case the browser lets the form through anyway
+  document.querySelector('form.colorlib-form').addEventListener('submit', function (e) {
+    if (!inputLatlng.value) {
+      e.preventDefault();
+      input2.setCustomValidity(INVALID_TUJUAN_MESSAGE);
+      input2.reportValidity();
+      swal('Tujuan Belum Valid', 'Silakan ketik lalu pilih salah satu lokasi tujuan dari daftar saran yang muncul di peta.', 'warning');
+    }
+  });
 </script>
 <script>
     function changeFunc(value) {

@@ -14,6 +14,10 @@ class FormKonsumsiController extends Controller
     
     public function submit(Request $req)
     {
+        $req->validate([
+            'jenis_peserta' => 'required|in:Internal,Internal VIP,External,External VIP',
+        ]);
+
         $file= $req->file('attachment');
         $image_name = $file->getClientOriginalName();
         $file->move(public_path('pemesanan_ruangan/attachment/'),$image_name);
@@ -28,6 +32,7 @@ class FormKonsumsiController extends Controller
         $permohonanKonsumsi->sumber_dana =$req->get('sumber_dana');
         $permohonanKonsumsi->kegiatan =$req->get('kegiatan');
         $permohonanKonsumsi->jenis_konsumsi =$req->get('jenis_konsumsi');
+        $permohonanKonsumsi->jenis_peserta =$req->get('jenis_peserta');
         $permohonanKonsumsi->jumlah_peserta =$req->get('jumlah_peserta');
         $permohonanKonsumsi->pemohon =$req->get('pemohon');
         $permohonanKonsumsi->pemohon_id =$req->get('pemohon_id');

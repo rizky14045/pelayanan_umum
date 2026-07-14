@@ -43,10 +43,20 @@
                         <input type="text" name="kegiatan" class="form-control" placeholder="Masukkan Nama Acara"
                              value="{{$info->nama_acara}}" required>
                     </div>
-                    <div class="form-group col-md-3">
-                        <label>Jumlah Peserta <span style="color:red;">*</span> </label>
+                    <div class="form-group col-md-3" style="display:none;">
+                        <label>Jumlah Peserta</label>
                         <input type="text" name="jumlah_peserta" class="form-control" placeholder="Masukkan Jumlah Peserta"
-                             value="{{$info->jumlah_peserta}}" required>
+                             value="{{$info->jumlah_peserta}}">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Jenis Peserta <span style="color:red;">*</span></label>
+                        <select name="jenis_peserta" class="form-control" required>
+                            <option value="" disabled selected>Pilih Jenis Peserta</option>
+                            <option value="Internal">Internal</option>
+                            <option value="Internal VIP">Internal VIP</option>
+                            <option value="External">External</option>
+                            <option value="External VIP">External VIP</option>
+                        </select>
                     </div>
                     <div class="form-group col-md-3">
                         <label>Ruang <span style="color:red;">*</span></label>
@@ -62,7 +72,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group col-md-3">
-                        <label>Attachment <span style="color:red;">*</span></label>
+                        <label>Nota Dinas <span style="color:red;">*</span></label>
                         <input id="attachment" class="form-control" accept=".xls,.xlsx,.pdf" name="attachment" type="file" required/>
                         {{-- @if($errors->has('attachment'))
                         <div class="error text-danger">{{ $errors->first('attachment') }}</div>
@@ -110,15 +120,15 @@
                         ->get();
                         @endphp
                         <label>No Pemesanan Ruangan</label>
-                        <select name="no_permohonan_konsumsi" class="form-control" onchange="changeFunc(value);"
+                        <select name="no_permohonan_konsumsi" id="select-no-pemesanan" class="form-control" onchange="changeFunc(value);"
                             required>
                             <option value="" disabled selected>pilih satu</option>
                             <option value="0">Tanpa Ruangan</option>
                             @foreach($prs as $pr)
                             @if(old('no_permohonan_konsumsi') == $pr->id )
-                            <option selected value="{{$pr->id}}">{{$pr->no_pemesanan_ruangan}}</option>
+                            <option selected value="{{$pr->id}}">{{$pr->no_pemesanan_ruangan}} - {{$pr->nama_acara}}</option>
                             @else
-                            <option value="{{$pr->id}}">{{$pr->no_pemesanan_ruangan}}</option>
+                            <option value="{{$pr->id}}">{{$pr->no_pemesanan_ruangan}} - {{$pr->nama_acara}}</option>
                             @endif
                             @endforeach
                         </select>
@@ -150,10 +160,20 @@
                         <input type="text" name="kegiatan" class="form-control" placeholder="Masukkan Nama Acara" required value="{{old('kegiatan')}}"
                             >
                     </div>
-                    <div class="form-group col-md-3">
-                        <label>Jumlah Peserta <span style="color:red;">*</span></label>
-                        <input type="text" name="jumlah_peserta" class="form-control" placeholder="Masukkan Jumlah Peserta" required value="{{old('jumlah_peserta')}}"
+                    <div class="form-group col-md-3" style="display:none;">
+                        <label>Jumlah Peserta</label>
+                        <input type="text" name="jumlah_peserta" class="form-control" placeholder="Masukkan Jumlah Peserta" value="{{ old('jumlah_peserta', 0) }}"
                             >
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Jenis Peserta <span style="color:red;">*</span></label>
+                        <select name="jenis_peserta" class="form-control" required>
+                            <option value="" disabled {{ old('jenis_peserta') ? '' : 'selected' }}>Pilih Jenis Peserta</option>
+                            <option value="Internal" {{ old('jenis_peserta') == 'Internal' ? 'selected' : '' }}>Internal</option>
+                            <option value="Internal VIP" {{ old('jenis_peserta') == 'Internal VIP' ? 'selected' : '' }}>Internal VIP</option>
+                            <option value="External" {{ old('jenis_peserta') == 'External' ? 'selected' : '' }}>External</option>
+                            <option value="External VIP" {{ old('jenis_peserta') == 'External VIP' ? 'selected' : '' }}>External VIP</option>
+                        </select>
                     </div>
                     <div class="form-group col-md-3">
                         <label>Ruang</label>
@@ -168,7 +188,7 @@
                 </div>
                 <div class="row">
                     <div class="form-group col-md-3">
-                        <label>Attachment <span style="color:red;">*</span></label>
+                        <label>Nota Dinas <span style="color:red;">*</span></label>
                         <input id="attachment" class="form-control" accept=".xls,.xlsx,.pdf" name="attachment" type="file" required/>
                         @if($errors->has('attachment'))
                         <div class="error text-danger" >{{ $errors->first('attachment') }}</div>
@@ -206,6 +226,16 @@
 </div>
 @endsection
 @section('script')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#select-no-pemesanan').select2({
+            placeholder: 'Cari nama acara atau no pemesanan ruangan ...',
+            width: '100%'
+        });
+    });
+</script>
 <script>
     function changeFunc(value) {
         $.ajax({

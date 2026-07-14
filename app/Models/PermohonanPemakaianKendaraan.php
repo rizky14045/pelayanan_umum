@@ -32,6 +32,7 @@ class PermohonanPemakaianKendaraan extends Model
         'pemohon_id',
         "tujuan",
         "keperluan",
+        "jenis_perjalanan",
         "hari",
         "driver_id",
         "tanggal_berangkat",

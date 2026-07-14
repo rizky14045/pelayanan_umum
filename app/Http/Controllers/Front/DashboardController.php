@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PemesananRuangan;
+use App\Models\SuratPerintahJalan;
 use App\Models\Ruang;
 use App\Models\Karyawan;
 use App\User;
@@ -30,6 +31,30 @@ public function dashboard() {
     ->take(8)->get();
     $data['ruangan'] = $ruangan;
     return view('dashboard.dashboard', $data);
+}
+
+public function dashboardKendaraan() {
+    $kendaraan = SuratPerintahJalan::join('permohonan_pemakaian_kendaraan', 'surat_perintah_jalan.id_permohonan_pemakaian_kendaraan', 'permohonan_pemakaian_kendaraan.id')
+    ->leftJoin('kendaraan', 'surat_perintah_jalan.kendaraan_id', 'kendaraan.id')
+    ->leftJoin('driver', 'surat_perintah_jalan.driver_id', 'driver.id')
+    ->where('permohonan_pemakaian_kendaraan.status_pj', 'Approved')
+    ->where(function($query) {
+        $query->where('surat_perintah_jalan.status_perjalanan', '!=', 'Sudah Sampai')
+            ->orWhereNull('surat_perintah_jalan.status_perjalanan');
+    })
+    ->select(
+        'surat_perintah_jalan.tujuan',
+        'surat_perintah_jalan.tanggal_berangkat', 'surat_perintah_jalan.tanggal_kembali',
+        'surat_perintah_jalan.jam_berangkat', 'surat_perintah_jalan.jam_kembali',
+        'surat_perintah_jalan.status_perjalanan',
+        'kendaraan.nama_kendaraan', 'kendaraan.no_pol',
+        'driver.nama_driver',
+        'permohonan_pemakaian_kendaraan.jenis_perjalanan'
+    )
+    ->orderBy('surat_perintah_jalan.tanggal_berangkat', 'ASC')
+    ->take(8)->get();
+    $data['kendaraan'] = $kendaraan;
+    return view('dashboard.dashboard-kendaraan', $data);
 }
 
 }

@@ -146,6 +146,10 @@ class PermohonanPemakaianKendaraanController extends Controller
      */
     public function postEdit(Request $request, $id)
     {
+        $request->validate([
+            'jenis_perjalanan' => 'required|in:Pergi Saja,Pulang Pergi',
+        ]);
+
         $permohonanPemakaianKendaraan = $this->findOrFail($id);
         $permohonanPemakaianKendaraan->pemohon = $request->pemohon;
         $permohonanPemakaianKendaraan->latlng = $request->latlng;
@@ -153,6 +157,7 @@ class PermohonanPemakaianKendaraanController extends Controller
         $permohonanPemakaianKendaraan->keterangan = $request->keterangan;
         $permohonanPemakaianKendaraan->tujuan = $request->tujuan;
         $permohonanPemakaianKendaraan->keperluan = $request->keperluan;
+        $permohonanPemakaianKendaraan->jenis_perjalanan = $request->jenis_perjalanan;
         $permohonanPemakaianKendaraan->hari = $request->hari;
         $permohonanPemakaianKendaraan->tanggal_berangkat = $request->tanggal_berangkat;
         $permohonanPemakaianKendaraan->tanggal_kembali = $request->tanggal_kembali;
@@ -271,6 +276,18 @@ class PermohonanPemakaianKendaraanController extends Controller
                 'rules' => [
                     "required",
                     "max:255"
+                ]
+            ],
+            'jenis_perjalanan' => [
+                'input' => "select",
+                'label' => "Jenis Perjalanan",
+                'options' => [
+                    ['label' => 'Pergi Saja', 'value' => 'Pergi Saja'],
+                    ['label' => 'Pulang Pergi', 'value' => 'Pulang Pergi'],
+                ],
+                'rules' => [
+                    "required",
+                    "in:Pergi Saja,Pulang Pergi"
                 ]
             ],
             // 'hari' => [

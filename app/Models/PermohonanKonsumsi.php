@@ -36,6 +36,7 @@ class PermohonanKonsumsi extends Model
         "sumber_dana",
         "kegiatan",
         "jenis_konsumsi",
+        "jenis_peserta",
         "jumlah",
         "pemohon",
         "status_pj",

@@ -160,22 +160,16 @@
             <div class="bg-holder full">
                 <div class="bg-mask"></div>
                 <div class="bg-img"
-                    style="background-image:url({{asset('vendor/frontend')}}/img/196_365_2048x1365.jpg);"></div>
+                    style="background-image:url({{asset('img/panorama1.jpg')}});"></div>
             </div>
             <div class="bg-holder full">
                 <div class="bg-mask"></div>
                 <div class="bg-img"
-                    style="background-image:url({{asset('vendor/frontend')}}/img/el_inevitable_paso_del_tiempo_2048x2048.jpg);">
-                </div>
-            </div>
-            <div class="bg-holder full">
-                <div class="bg-mask"></div>
-                <div class="bg-img"
-                    style="background-image:url({{asset('vendor/frontend')}}/img/viva_las_vegas_2048x1365.jpg);"></div>
+                    style="background-image:url({{asset('img/panorama2.jpg')}});"></div>
             </div>
         </div>
         <div class="bg-img hidden-lg"
-            style="background-image:url({{asset('vendor/frontend')}}/img/196_365_2048x1365.jpg);"></div>
+            style="background-image:url({{asset('img/panorama1.jpg')}});"></div>
         <div class="bg-mask hidden-lg"></div>
     </div>
 </div>

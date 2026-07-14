@@ -1,5 +1,6 @@
 <?php
 Route::get('/dashboard/ruangan', 'Front\DashboardController@dashboard')->name('dashboard');
+Route::get('/dashboard/kendaraan', 'Front\DashboardController@dashboardKendaraan')->name('dashboard.kendaraan');
 Route::middleware("front.auth")->namespace('Front')->prefix('profile')->name('profile.')->group(function() {
     Route::get('/', 'ProfileController@index')->name('index');
     Route::get('/setting', 'ProfileController@setting')->name('setting');
@@ -89,6 +90,9 @@ Route::get('admin', 'Admin\DashboardController@pageDashboard')->name('admin::das
 //     return redirect('admin/permohonan-konsumsi');
 // })->name('admin::dashboard')->middleware('auth');
 
+Route::get('admin/notifications', 'Admin\NotificationController@index')->name('admin::notifications.index')->middleware('auth');
+Route::get('admin/notifications/mark-all-read', 'Admin\NotificationController@markAllRead')->name('admin::notifications.mark-all-read')->middleware('auth');
+
 Route::name('admin::test.')->prefix('admin/test')->middleware('auth')->namespace('Admin')->group(function() {
     Route::get('/', 'TestController@pageList')->name('page-list');
     Route::get('create', 'TestController@formCreate')->name('form-create');
@@ -153,7 +157,7 @@ Route::name('admin::ruang.')->prefix('admin/ruang')->middleware('auth')->namespa
     Route::post('edit/{id}', 'RuangController@postEdit')->name('post-edit');
     Route::get('delete/{id}', 'RuangController@delete')->name('delete');
     Route::get('view/{id}', 'RuangController@pageDetail')->name('page-detail');
-    
+    Route::post('sync-kombinasi/{id}', 'RuangController@postSyncKombinasi')->name('sync-kombinasi');
 });
 
 Route::name('admin::layout-ruang.')->prefix('admin/layout-ruang')->middleware('auth')->namespace('Admin')->group(function() {
