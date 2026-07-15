@@ -1,14 +1,19 @@
 @extends('admin::layout.master')
 
 @section('content')
+<style>
+	.kpi-form-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+	.kpi-btn-back{display:inline-flex;align-items:center;gap:8px;background:#F5F6FA;color:#1F5C85;border:none;border-radius:20px;padding:9px 20px;font-size:14px;font-weight:600;transition:background .15s,transform .15s;}
+	.kpi-btn-back:hover{background:#E1EDF4;transform:translateX(-2px);color:#1F5C85;text-decoration:none;}
+	.kpi-form-card{background:#fff;border:1px solid #EEF0F5;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);padding:24px;}
+</style>
 @include('admin::partials.alert-messages')
-<div class="block-header">
-    <h2>Edit Permohonan Pemakaian Kendaraan</h2>
+<div class="kpi-form-header">
+    <h2 style="margin:0;">Edit Permohonan Pemakaian Kendaraan</h2>
+    <a class="kpi-btn-back" href="{{ route('admin::permohonan-pemakaian-kendaraan.page-list') }}"><i class="fa fa-arrow-left"></i> Kembali</a>
 </div>
-<div class="card">
-  <div class="body">
+<div class="kpi-form-card">
     {!! $form->render() !!}
-  </div>
 </div>
 @stop
 
@@ -79,7 +84,52 @@
 
   var mapOptions = {}
   var input2 = document.getElementById("input-tujuan");
-  new google.maps.places.Autocomplete(input2, mapOptions);
+  var autocomplete = new google.maps.places.Autocomplete(input2, mapOptions);
+  var inputLatlng = document.getElementById("input-latlng");
+  var INVALID_TUJUAN_MESSAGE = "Pilih salah satu lokasi tujuan dari daftar saran yang muncul.";
+  var justSelectedPlace = false;
+
+  // A valid place was picked from the Google suggestion list
+  autocomplete.addListener('place_changed', function () {
+    var place = autocomplete.getPlace();
+    justSelectedPlace = true;
+
+    if (!place || !place.geometry || !place.geometry.location) {
+      inputLatlng.value = "";
+      input2.setCustomValidity(INVALID_TUJUAN_MESSAGE);
+      return;
+    }
+
+    inputLatlng.value = place.geometry.location.lat() + ',' + place.geometry.location.lng();
+    input2.setCustomValidity("");
+  });
+
+  // Typing manually (not picking a suggestion) invalidates the previously confirmed location
+  input2.addEventListener('input', function () {
+    if (justSelectedPlace) {
+      justSelectedPlace = false;
+      return;
+    }
+    inputLatlng.value = "";
+    input2.setCustomValidity(input2.value.trim().length > 0 ? INVALID_TUJUAN_MESSAGE : "");
+  });
+
+  // Existing record already has a confirmed point saved, keep it valid until tujuan is touched
+  if (inputLatlng.value) {
+    input2.setCustomValidity("");
+  } else if (input2.value.trim().length > 0) {
+    input2.setCustomValidity(INVALID_TUJUAN_MESSAGE);
+  }
+
+  // Safety net in case the browser lets the form through anyway
+  $(input2.closest('form')).on('submit', function (e) {
+    if (!inputLatlng.value) {
+      e.preventDefault();
+      input2.setCustomValidity(INVALID_TUJUAN_MESSAGE);
+      input2.reportValidity();
+      swal('Tujuan Belum Valid', 'Silakan ketik lalu pilih salah satu lokasi tujuan dari daftar saran yang muncul di peta.', 'warning');
+    }
+  });
 
 // $(function() {
 //   $("#input-latlng").on('routes', function (e, data) {

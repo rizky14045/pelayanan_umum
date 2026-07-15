@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Ruang;
 use App\Models\ChildRuang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use LaraSpells\FormModel\FormModel;
 
 /**
@@ -120,6 +121,19 @@ class RuangController extends Controller
 
         $data['title'] = 'Form Edit Ruang';
         $data['form'] = $this->form($ruang)->withAction(route('admin::ruang.post-edit', [$id]));
+        $data['ruang'] = $ruang;
+        $data['atomicRooms'] = $this->ruang
+            ->where('is_kombinasi', 0)
+            ->where('id', '!=', $id)
+            ->orderBy('nama_ruang')
+            ->get();
+        $data['currentAnggotaIds'] = DB::table('ruang_kombinasi_anggota')
+            ->where('id_ruang_kombinasi', $id)
+            ->pluck('id_ruang_anggota')
+            ->map(function ($v) {
+                return (int) $v;
+            })
+            ->all();
 
         return view('admin::ruang.form-edit', $data);
     }
@@ -152,6 +166,16 @@ class RuangController extends Controller
     {
         $ruang = $this->findOrFail($id);
 
+        $memberOfCombos = DB::table('ruang_kombinasi_anggota')
+            ->join('ruang', 'ruang_kombinasi_anggota.id_ruang_kombinasi', '=', 'ruang.id')
+            ->where('ruang_kombinasi_anggota.id_ruang_anggota', $id)
+            ->pluck('ruang.nama_ruang');
+
+        if ($memberOfCombos->isNotEmpty()) {
+            $message = 'Ruangan ini adalah anggota gabungan: ' . $memberOfCombos->implode(', ') . '. Hapus dari gabungan tersebut terlebih dahulu sebelum menghapus ruangan ini.';
+            return back()->with('danger', $message);
+        }
+
         // Delete data
         $deleted = $ruang->delete();
         if (!$deleted) {
@@ -161,6 +185,57 @@ class RuangController extends Controller
 
         $message = 'Ruang has been deleted!';
         return redirect()->route('admin::ruang.page-list')->with('info', $message);
+    }
+
+    /**
+     * Mark a ruang as a combination of other (atomic) rooms and sync its members.
+     *
+     * @param  Illuminate\Http\Request $request
+     * @param  string $id
+     * @return Illuminate\Http\Response
+     */
+    public function postSyncKombinasi(Request $request, $id)
+    {
+        $ruang = $this->findOrFail($id);
+        $isKombinasi = $request->boolean('is_kombinasi');
+        $anggotaIds = array_map('intval', $request->get('anggota', []));
+
+        if ($isKombinasi) {
+            if (count($anggotaIds) < 2) {
+                return back()->with('danger', 'Pilih minimal 2 ruangan untuk digabungkan.');
+            }
+
+            $anggotaIsKombinasi = Ruang::whereIn('id', $anggotaIds)->where('is_kombinasi', 1)->exists();
+            if ($anggotaIsKombinasi) {
+                return back()->with('danger', 'Ruangan gabungan tidak boleh berisi ruangan gabungan lain.');
+            }
+
+            $isAlreadyAnggota = DB::table('ruang_kombinasi_anggota')->where('id_ruang_anggota', $id)->exists();
+            if ($isAlreadyAnggota) {
+                return back()->with('danger', 'Ruangan ini sudah menjadi anggota gabungan lain, tidak bisa dijadikan gabungan sendiri.');
+            }
+        }
+
+        $ruang->is_kombinasi = $isKombinasi;
+        $ruang->save();
+
+        DB::table('ruang_kombinasi_anggota')->where('id_ruang_kombinasi', $id)->delete();
+
+        if ($isKombinasi) {
+            $now = now();
+            $rows = array_map(function ($anggotaId) use ($id, $now) {
+                return [
+                    'id_ruang_kombinasi' => $id,
+                    'id_ruang_anggota' => $anggotaId,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }, $anggotaIds);
+            DB::table('ruang_kombinasi_anggota')->insert($rows);
+        }
+
+        $message = 'Gabungan ruangan berhasil disimpan.';
+        return redirect()->route('admin::ruang.form-edit', [$id])->with('info', $message);
     }
 
     /**

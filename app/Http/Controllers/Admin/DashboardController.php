@@ -35,6 +35,10 @@ class DashboardController extends Controller
         ->where(function($query) use($today) {
             $query->where('tanggal_selesai', '>=', $today)
                 ->orWhereNull('tanggal_selesai');
+        })
+        ->where(function($query) {
+            $query->where('status_pelaksana', '!=', 'Terlaksana')
+                ->orWhereNull('status_pelaksana');
         })->get();
         $data['kendaraan'] =PermohonanPemakaianKendaraan::where('status_pj', 'Approved')
         ->where('tanggal_berangkat', '<=', $today)
@@ -47,6 +51,10 @@ class DashboardController extends Controller
         ->where(function($query) use($today) {
             $query->where('tanggal_selesai', '>=', $today)
                 ->orWhereNull('tanggal_selesai');
+        })
+        ->where(function($query) {
+            $query->where('status_pelaksana', '!=', 'Terlaksana')
+                ->orWhereNull('status_pelaksana');
         })->get();
         $data['spj'] =SuratPerintahJalan::where('status_pj', 'Approved')
         ->where('tanggal_berangkat', '<=', $today)

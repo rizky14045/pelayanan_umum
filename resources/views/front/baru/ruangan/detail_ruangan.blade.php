@@ -77,7 +77,7 @@
                     </div>
                     <div class="form-group col-md-3">
                         <label>Tambah Konsumsi</label>
-                        <select class="form-control" name="konsumsi" required>
+                        <select class="form-control" name="konsumsi" id="konsumsi_toggle" required>
                             <option value="Ya">Ya</option>
                             <option value="Tidak" selected>Tidak</option>
                         </select>
@@ -86,6 +86,55 @@
                         <label>Jumlah Peserta</label>
                         <input class="form-control" name="jumlah_peserta" type="number" readonly value="{{Request::get('jumlah_peserta')}}"
                             required />
+                    </div>
+                </div>
+                <div id="konsumsi-section" style="display:none;">
+                    <h5>Detail Konsumsi</h5>
+                    <div class="row">
+                        <div class="form-group col-md-3">
+                            <label>Jumlah Konsumsi</label>
+                            <input class="form-control konsumsi-field" name="konsumsi_jumlah" type="number" placeholder="Jumlah" />
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Sumber Dana</label>
+                            <input class="form-control konsumsi-field" name="konsumsi_sumber_dana" type="text" placeholder="Sumber Dana" />
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Jenis Konsumsi</label>
+                            <select class="form-control konsumsi-field" name="konsumsi_jenis_konsumsi">
+                                <option value="" disabled selected>Pilih Jenis Konsumsi</option>
+                                <option>Snack Pagi + Makan Siang + Snack Sore + Makan Malam</option>
+                                <option>Snack pagi + Makan siang + Snack Sore</option>
+                                <option>Snack Pagi + Makan Siang</option>
+                                <option>Snack Sore + Makan Malam</option>
+                                <option>Snack Pagi</option>
+                                <option>Snack Sore</option>
+                                <option>Makan Siang</option>
+                                <option>Makan Malam</option>
+                                <option>Kupon</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label>Jenis Peserta</label>
+                            <select class="form-control konsumsi-field" name="konsumsi_jenis_peserta">
+                                <option value="" disabled selected>Pilih Jenis Peserta</option>
+                                <option value="Internal">Internal</option>
+                                <option value="Internal VIP">Internal VIP</option>
+                                <option value="External">External</option>
+                                <option value="External VIP">External VIP</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label>Nota Dinas</label>
+                            <input id="konsumsi_attachment" class="form-control konsumsi-field" accept=".xls,.xlsx,.pdf" name="konsumsi_attachment" type="file" />
+                            <small class="form-text text-danger">File attachment maksimal sebesar 2MB</small>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Keterangan Konsumsi</label>
+                            <textarea class="form-control" name="konsumsi_keterangan" rows="1"></textarea>
+                        </div>
                     </div>
                 </div>
                 {{-- <div class="row">
@@ -148,6 +197,9 @@
                         <img src="{{asset($ruang->foto_ruang)}}" alt="Image Alternative text" />
                     </a>
                     <h5 class="booking-item-payment-title"><a>{{$ruang->nama_ruang}}</a></h5>
+                    @if($ruang->is_kombinasi)
+                        <p class="text-info">Ruangan gabungan dari: {{ $ruang->anggotaRooms->pluck('nama_ruang')->implode(', ') }}</p>
+                    @endif
                 </header>
                 <ul class="booking-item-payment-details">
                     <li>
@@ -179,7 +231,7 @@
 
 <script>
     var MAX_FILE_SIZE = 2 * 1024 * 1024; // 5MB
- 
+
     $(document).ready(function() {
         $('#attachment').change(function() {
             fileSize = this.files[0].size;
@@ -190,6 +242,25 @@
                 this.setCustomValidity("");
             }
         });
+
+        $('#konsumsi_attachment').change(function() {
+            fileSize = this.files[0].size;
+            if (fileSize > MAX_FILE_SIZE) {
+                this.setCustomValidity("Ukuran File Maximal hanya 2 MB!");
+                this.reportValidity();
+            } else {
+                this.setCustomValidity("");
+            }
+        });
+
+        function toggleKonsumsiSection() {
+            var isYa = $('#konsumsi_toggle').val() === 'Ya';
+            $('#konsumsi-section').toggle(isYa);
+            $('.konsumsi-field').prop('required', isYa);
+        }
+
+        $('#konsumsi_toggle').on('change', toggleKonsumsiSection);
+        toggleKonsumsiSection();
     });
 </script>
 @endsection

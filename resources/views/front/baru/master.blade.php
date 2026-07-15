@@ -17,6 +17,25 @@
     <link rel="stylesheet" href="{{asset('vendor/frontend')}}/css/switcher.css" />
     @styles()
 
+    <style>
+        .header-top { background: #1F5C85 !important; }
+        ul.slimmenu li.active>a,
+        ul.slimmenu li:hover>a { background: #1F5C85 !important; color: #fff !important; }
+        .top-user-area-avatar .avatar-initials {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+    </style>
+
     <link rel="icon" href="{{asset('vendor/home')}}/images/new-logo.ico">
 
     <script src="{{asset('vendor/frontend')}}/js/modernizr.js"></script>
@@ -42,9 +61,15 @@
                                             @php
                                             $user = App\Models\Karyawan::where('id',
                                             auth()->guard('front')->id())->first();
+                                            $avatarName = trim($user->nama);
+                                            $avatarWords = preg_split('/\s+/', $avatarName);
+                                            $avatarInitials = count($avatarWords) >= 2
+                                                ? strtoupper(substr($avatarWords[0], 0, 1) . substr($avatarWords[1], 0, 1))
+                                                : strtoupper(substr($avatarName, 0, 2));
+                                            $avatarColors = ['#F45B69', '#3E92CC', '#2E8B57', '#D46A6A', '#8E44AD', '#E67E22', '#16A085', '#C0392B', '#27AE60', '#D35400', '#6C5CE7', '#00A8A8'];
+                                            $avatarColor = $avatarColors[crc32($avatarName) % count($avatarColors)];
                                             @endphp
-                                            <img class="origin round" src="{{asset('vendor/frontend')}}/img/amaze_40x40.jpg"
-                                                alt="Image Alternative text" title="Amaze" />Hi, {{$user->nama}}
+                                            <span class="avatar-initials" style="background-color: {{ $avatarColor }};">{{ $avatarInitials }}</span>Hi, {{$user->nama}}
                                         </a>
                                     </li>
                                     <li><a href="{{route('logout')}}">Keluar</a></li>

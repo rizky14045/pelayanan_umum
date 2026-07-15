@@ -36,6 +36,46 @@
 
   <!-- AdminBSB Themes. You can choose a theme from css/themes instead of get all themes -->
   <link href="{{ asset('vendor/admin-bsb/css/themes/all-themes.css') }}" rel="stylesheet" />
+
+  <!-- Custom Navy Palette Override -->
+  <style>
+    body.theme-blue .navbar { background: #1F5C85 !important; }
+    body.theme-blue .navbar-brand,
+    body.theme-blue .navbar-brand:hover,
+    body.theme-blue .navbar-brand:active,
+    body.theme-blue .navbar-brand:focus,
+    body.theme-blue .bars,
+    body.theme-blue .nav > li > a { color: #fff !important; }
+
+    body.theme-blue #leftsidebar,
+    body.theme-blue .sidebar { background: #1F5C85 !important; }
+
+    body.theme-blue .sidebar .user-info {
+      background: #1F5C85 !important;
+      border-bottom: 1px solid rgba(255,255,255,0.15) !important;
+    }
+    body.theme-blue .sidebar .menu .list .header {
+      background: #1F5C85 !important;
+      color: #fff !important;
+    }
+    body.theme-blue .sidebar .menu .list li a,
+    body.theme-blue .sidebar .menu .list li a span { color: #fff !important; }
+    body.theme-blue .sidebar .menu .list li a i.material-icons { color: #fff !important; }
+    body.theme-blue .sidebar .menu .list li a:hover,
+    body.theme-blue .sidebar .menu .list li.active,
+    body.theme-blue .sidebar .menu .list .toggled { background: rgba(255,255,255,0.12) !important; }
+    body.theme-blue .sidebar .menu .list li.active > :first-child i,
+    body.theme-blue .sidebar .menu .list li.active > :first-child span { color: #fff !important; }
+    body.theme-blue .sidebar .menu .list .ml-menu { background: rgba(0,0,0,0.12) !important; }
+    body.theme-blue .sidebar .legal {
+      background: #1F5C85 !important;
+      border-top: 1px solid rgba(255,255,255,0.15) !important;
+    }
+    body.theme-blue .sidebar .legal .copyright,
+    body.theme-blue .sidebar .legal .version { color: #fff !important; }
+    body.theme-blue .sidebar .legal .copyright a { color: #fff !important; }
+  </style>
+
   @styles
   @show
 </head>
@@ -47,19 +87,6 @@
   <!-- Overlay For Sidebars -->
   <div class="overlay"></div>
   <!-- #END# Overlay For Sidebars -->
-  <!-- Search Bar -->
-  <div class="search-bar">
-    <div class="search-icon">
-      <i class="material-icons">search</i>
-    </div>
-    <input type="text" placeholder="START TYPING...">
-    <div class="close-search">
-      <i class="material-icons">close</i>
-    </div>
-  </div>
-  
- 
-  <!-- #END# Search Bar -->
   <!-- Top Bar -->
   <nav class="navbar">
     <div class="container-fluid">

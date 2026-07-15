@@ -1,134 +1,178 @@
 @extends('admin::layout.master')
 
 @section('content')
+<style>
+	.kpi-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+	.kpi-toolbar-search{flex:1;max-width:420px;margin-left:auto;}
+	.kpi-toolbar-search .form-control{border-radius:20px;padding-left:16px;}
+
+	#kpi-list{display:flex;flex-direction:column;gap:10px;}
+
+	.kpi-card{display:flex;background:#fff;border:1px solid #EEF0F5;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);overflow:hidden;}
+	.kpi-card-accent{width:5px;flex-shrink:0;}
+	.kpi-card-body{flex:1;padding:12px 20px;}
+	.kpi-card-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:nowrap;}
+	.kpi-card-title-wrap{flex:1;min-width:0;}
+	.kpi-card-title-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+	.kpi-card-title{font-size:16px;font-weight:700;color:#2A2E43;word-break:break-word;overflow-wrap:anywhere;}
+	.kpi-card-subtitle{font-size:13px;color:#8A8FA3;margin-top:2px;}
+	.kpi-card-meta{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap;}
+	.kpi-card-meta span{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#6B7080;}
+	.kpi-card-meta i{color:#A6AAB8;}
+	.kpi-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+	.kpi-badge-success{background:#E5F7EF;color:#1BAA6B;}
+	.kpi-badge-danger{background:#FDE7EC;color:#E03A5D;}
+	.kpi-badge-warning{background:#FFF3D6;color:#C98A0A;}
+	.kpi-badge-info{background:#E3EEFD;color:#2C7BE5;}
+	.kpi-badge-muted{background:#F0F1F5;color:#8A8FA3;}
+	.kpi-card-actions{display:flex;align-items:center;gap:14px;flex-wrap:nowrap;flex-shrink:0;}
+	.kpi-action-buttons{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
+	.kpi-toggle{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;color:#8A8FA3;font-size:14px;border-radius:50%;cursor:pointer;background:#F5F6FA;transition:background .15s,color .15s,transform .15s;}
+	.kpi-toggle:hover{background:#E1EDF4;color:#1F5C85;}
+	.kpi-toggle.is-open{color:#1F5C85;background:#E1EDF4;transform:rotate(180deg);}
+	.kpi-card-detail{display:none;margin-top:14px;padding-top:14px;border-top:1px solid #F0F1F5;}
+	.kpi-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;}
+	.kpi-detail-item .kpi-detail-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#A6AAB8;margin-bottom:2px;}
+	.kpi-detail-item .kpi-detail-value{font-size:14px;color:#2A2E43;}
+
+	.kpi-card-actions .btn{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#fff;border:none;box-shadow:none;line-height:1;transition:filter .15s,transform .15s;}
+	.kpi-card-actions .btn:hover{filter:brightness(0.92);transform:translateY(-1px);text-decoration:none;color:#fff;}
+	.kpi-card-actions .btn i{color:#fff;}
+	.kpi-card-actions .btn-success{background:#15803D;}
+	.kpi-card-actions .btn-danger{background:#DC2626;}
+	.kpi-card-actions .btn-warning{background:#C2790A;}
+	.kpi-card-actions .btn-primary{background:#2563EB;}
+
+	.kpi-pagination{display:flex;justify-content:center;align-items:center;gap:16px;margin-top:20px;}
+
+	.kpi-btn-create{display:inline-flex;align-items:center;gap:8px;background:#1F5C85;color:#fff;border:none;border-radius:20px;padding:9px 20px;font-size:14px;font-weight:600;box-shadow:0 2px 6px rgba(31,92,133,.35);transition:filter .15s,transform .15s;}
+	.kpi-btn-create:hover{filter:brightness(0.94);transform:translateY(-1px);color:#fff;text-decoration:none;}
+</style>
+
 <div class="block-header">
     <h2>List Permohonan Konsumsi</h2>
 </div>
 @include('admin::partials.alert-messages')
-<div class="card card-grid">
-	<div class="header">
-		<div class="row">
-			<div class="col-md-9 no-margin">
-				<a class="btn btn-success" href="{{ route('admin::permohonan-konsumsi.form-create') }}">Create</a>
-			</div>
-			<div class="col-md-3 no-margin">
-				{{-- <form method="GET">
-					<div class="form-group" style="margin:0px">
-						<div class="input-group" style="margin:0px">
-							<div class="form-line">
-								<input name="keyword" class="form-control" placeholder="Search something ..." value="{{ request('keyword') }}"/>
-							</div>
-							<div class="input-group-btn">
-								<button class="btn btn-info">Search</button>
-							</div>
-						</div>
-					</div>
-				</form> --}}
-			</div>
-		</div>
-	</div>
-	<div class="body">
-		<div class="table-responsive">
-		  <table id="my-table" class="table table-bordered">
-		    <thead>
-		      <tr>
-		        <th width="20" class="text-center column-number">No</th>
-		        <th class='column-no_permohonan_konsumsi'>No Permohonan Konsumsi</th>
-				<th class='column-tanggal'>Tanggal Pemesanan </th>
-		        <th class='column-tanggal'>Jam Pemesanan </th>
-		        <th class='column-tanggal'>Tanggal</th>
-		        <th class='column-tanggal'>Tanggal Selesai</th>
-		        <th class='column-jam'>Jumlah</th>
-		        <th class='column-sumber_dana'>Sumber Dana</th>
-		        <th class='column-kegiatan'>Kegiatan</th>
-		        <th class='column-jenis_konsumsi'>Jenis Konsumsi</th>
-		        <th class='column-jumlah'>Jumlah</th>
-		        <th class='column-pemohon'>Pemohon</th>
-		        {{-- <th class='column-supervisor'>Supervisor</th>
-		        <th class='column-status_supervisor'>Status Supervisor</th>
-		        <th class='column-manajer'>Manajer</th>
-		        <th class='column-status_manajer'>Status Manajer</th> --}}
-		        <th class='column-status_pj'>Status</th>
-		        <th class='column-status_pj'>Status Pelaksana</th>
-		        <th class='column-keterangan'>Keterangan</th>
-		        <th class='column-keterangan'>Alasan Reject</th>
-		        <th class='column-keterangan'>Attachment</th>
-		        <th class="text-center column-action">Action</th>
-		      </tr>
-		    </thead>
-		    <tbody>
-		      @foreach($pagination as $i => $permohonanKonsumsi)
-				@if ($permohonanKonsumsi->status_pj == 'Approved' && $permohonanKonsumsi->status_pelaksana == 'Terlaksana' )
-					<tr style="background-color: #FAF4B7;color:black;">
-				@elseif ($permohonanKonsumsi->status_pj == 'Approved')
-					<tr style="background-color: #9ED2C6;color:black;">
-				@elseif($permohonanKonsumsi->status_pj == 'Rejected')
-					<tr style="background-color: #FF8AAE;color:black;">
-				@else
-					<tr>
-				@endif
-		        <td class="text-center column-number">{{ $loop->iteration }}</td>
-				@if ($permohonanKonsumsi->no_permohonan_konsumsi == '0')
-					<td class='column-no_permohonan_konsumsi'>Tanpa Ruangan</td>
-				@else
-		        	<td class='column-no_permohonan_konsumsi'>{{ $permohonanKonsumsi->nomor->no_pemesanan_ruangan ?? ''}}</td>
-				@endif
-		        <td class='column-tanggal'>{{ $permohonanKonsumsi->created_at->format("Y-m-d") }}</td>
-		        <td class='column-tanggal'>{{ $permohonanKonsumsi->created_at->format("H:i:s") }}</td>
-		        <td class='column-tanggal'>{{ $permohonanKonsumsi->tanggal }}</td>
-		        <td class='column-tanggal'>{{ $permohonanKonsumsi->tanggal_selesai }}</td>
-		        <td class='column-jam'>{{ $permohonanKonsumsi->jumlah }}</td>
-		        <td class='column-sumber_dana'>{{ $permohonanKonsumsi->sumber_dana }}</td>
-		        <td class='column-kegiatan'>{{ $permohonanKonsumsi->kegiatan }}</td>
-		        <td class='column-jenis_konsumsi'>{{ $permohonanKonsumsi->jenis_konsumsi }}</td>
-		        <td class='column-jumlah'>{{ $permohonanKonsumsi->jumlah_peserta }}</td>
-		        <td class='column-pemohon'>{{ $permohonanKonsumsi->pemohon }}</td>
-		        {{-- <td class='column-supervisor'>{{ $permohonanKonsumsi->nama_supervisor }}</td>
-		        <td class='column-status_supervisor'>{{ $permohonanKonsumsi->status_supervisor }}</td>
-		        <td class='column-manajer'>{{ $permohonanKonsumsi->nama_manajer }}</td>
-		        <td class='column-status_manajer'>{{ $permohonanKonsumsi->status_manajer }}</td> --}}
-		        <td class='column-status_pj'>{{ $permohonanKonsumsi->status_pj }}</td>
-		        <td class='column-status_pj'>{{ $permohonanKonsumsi->status_pelaksana }}</td>
-		        <td class='column-keterangan'>{{ $permohonanKonsumsi->keterangan }}</td>
-		        <td class='column-keterangan'>{{ $permohonanKonsumsi->alasan_reject }}</td>
-				<td>
-					<a href="{{asset('pemesanan_ruangan/attachment/'.$permohonanKonsumsi->attachment) }}" download> Click</a>
-				</td>
-		        <td width="200" class="text-center column-action">
-				{{-- @if (now() <= $permohonanKonsumsi->tanggal) --}}
-					@if (Auth::user()->role == 'adminruang')
-						@if($permohonanKonsumsi->status_pj == 'Pending')
-							<a class="btn btn-sm btn-delete btn-success" href="{{ route('admin::permohonan-konsumsi.approve', [$permohonanKonsumsi->getKey()]) }}">Approve</a>
-							<a class="btn btn-sm btn-delete btn-danger reject-button" href="#" data-toggle="modal" data-target="#exampleModal" data-id="{{$permohonanKonsumsi->id}}">Reject</a>
-						@endif 
-						@if($permohonanKonsumsi->status_pelaksana != 'Terlaksana' && $permohonanKonsumsi->status_pj == 'Approved' )
-							<a class="btn btn-sm btn-delete btn-warning" href="{{ route('admin::permohonan-konsumsi.terlaksana', [$permohonanKonsumsi->getKey()]) }}">Selesai</a>
-						@endif 
-					@else
-						@if($permohonanKonsumsi->status_pj == 'Pending')
-							<a class="btn btn-sm btn-delete btn-success" href="{{ route('admin::permohonan-konsumsi.approve', [$permohonanKonsumsi->getKey()]) }}">Approve</a>
-							<a class="btn btn-sm btn-delete btn-danger reject-button" href="#"  data-toggle="modal" data-target="#exampleModal" data-id="{{$permohonanKonsumsi->id}}">Reject</a>
-							
-						@endif 
-						@if($permohonanKonsumsi->status_pj == 'Rejected')
-						<a class="btn btn-sm btn-edit btn-primary" href="{{ route('admin::permohonan-konsumsi.form-edit', [$permohonanKonsumsi->getKey()]) }}">Edit</a>
-							<a class="btn btn-sm btn-delete btn-danger delete-button" href="#" data-id="{{$permohonanKonsumsi->id}}">Delete</a>
-						@endif 
-						@if($permohonanKonsumsi->status_pelaksana != 'Terlaksana' && $permohonanKonsumsi->status_pj == 'Approved' )
-							<a class="btn btn-sm btn-delete btn-warning" href="{{ route('admin::permohonan-konsumsi.terlaksana', [$permohonanKonsumsi->getKey()]) }}">Selesai</a>
-							<a class="btn btn-sm btn-edit btn-primary" href="{{ route('admin::permohonan-konsumsi.form-edit', [$permohonanKonsumsi->getKey()]) }}">Edit</a>
-							<a class="btn btn-sm btn-delete btn-danger delete-button" href="#" data-id="{{$permohonanKonsumsi->id}}">Delete</a>
-						@endif 
-					@endif
-				{{-- @endif --}}
-		        </td>
-		      </tr>
-		      @endforeach
-		    </tbody>
-		  </table>
-		</div>
+
+<div class="kpi-toolbar">
+	<a class="kpi-btn-create" href="{{ route('admin::permohonan-konsumsi.form-create') }}"><i class="fa fa-plus"></i> Tambah Permohonan</a>
+	<div class="kpi-toolbar-search">
+		<input id="search-kegiatan" class="form-control" placeholder="Cari kegiatan, no permohonan, atau deskripsi ..."/>
 	</div>
 </div>
+
+<div id="kpi-list">
+	@foreach($pagination as $permohonanKonsumsi)
+		@php
+			$noPermohonan = $permohonanKonsumsi->no_permohonan_konsumsi == '0'
+				? 'Tanpa Ruangan'
+				: ($permohonanKonsumsi->nomor->no_pemesanan_ruangan ?? '');
+
+			$namaRuangan = optional(optional($permohonanKonsumsi->nomor)->ruang)->nama_ruang;
+
+			if ($permohonanKonsumsi->status_pj == 'Approved' && $permohonanKonsumsi->status_pelaksana == 'Terlaksana') {
+				$accentColor = '#F0C808';
+			} elseif ($permohonanKonsumsi->status_pj == 'Approved') {
+				$accentColor = '#2FBF88';
+			} elseif ($permohonanKonsumsi->status_pj == 'Rejected') {
+				$accentColor = '#FF6584';
+			} else {
+				$accentColor = '#1F5C85';
+			}
+
+			$subtitle = \Illuminate\Support\Str::limit($permohonanKonsumsi->keterangan, 100);
+
+			if ($permohonanKonsumsi->status_pj == 'Approved') {
+				$approvalBadge = ['icon' => 'fa-check-circle', 'class' => 'kpi-badge-success', 'label' => 'Disetujui'];
+			} elseif ($permohonanKonsumsi->status_pj == 'Rejected') {
+				$approvalBadge = ['icon' => 'fa-times-circle', 'class' => 'kpi-badge-danger', 'label' => 'Ditolak'];
+			} else {
+				$approvalBadge = ['icon' => 'fa-clock-o', 'class' => 'kpi-badge-warning', 'label' => 'Pending'];
+			}
+
+			if ($permohonanKonsumsi->status_pelaksana == 'Terlaksana') {
+				$pelaksanaBadge = ['icon' => 'fa-flag-checkered', 'class' => 'kpi-badge-info', 'label' => 'Terlaksana'];
+			} else {
+				$pelaksanaBadge = ['icon' => 'fa-hourglass-half', 'class' => 'kpi-badge-muted', 'label' => 'Belum Terlaksana'];
+			}
+		@endphp
+		<div class="kpi-card" data-kegiatan="{{ $permohonanKonsumsi->kegiatan }}" data-nomor="{{ $noPermohonan }}" data-keterangan="{{ $permohonanKonsumsi->keterangan }}">
+			<div class="kpi-card-accent" style="background: {{ $accentColor }}"></div>
+			<div class="kpi-card-body">
+				<div class="kpi-card-row">
+					<div class="kpi-card-title-wrap">
+						<div class="kpi-card-title-line">
+							<span class="kpi-card-title">{{ $permohonanKonsumsi->kegiatan }}</span>
+							<span class="kpi-badge {{ $approvalBadge['class'] }}"><i class="fa {{ $approvalBadge['icon'] }}"></i> {{ $approvalBadge['label'] }}</span>
+							<span class="kpi-badge {{ $pelaksanaBadge['class'] }}"><i class="fa {{ $pelaksanaBadge['icon'] }}"></i> {{ $pelaksanaBadge['label'] }}</span>
+						</div>
+						@if($namaRuangan)
+							<div class="kpi-card-meta">
+								<span><i class="fa fa-map-marker"></i> {{ $namaRuangan }}</span>
+							</div>
+						@endif
+						@if($subtitle)
+							<div class="kpi-card-subtitle">{{ $subtitle }}</div>
+						@endif
+					</div>
+					<div class="kpi-card-actions">
+						<div class="kpi-action-buttons">
+							@if (Auth::user()->role == 'adminruang')
+								@if($permohonanKonsumsi->status_pj == 'Pending')
+									<a class="btn btn-sm btn-delete btn-primary" href="{{ route('admin::permohonan-konsumsi.approve', [$permohonanKonsumsi->getKey()]) }}"><i class="fa fa-check"></i> Approve</a>
+									<a class="btn btn-sm btn-delete btn-danger reject-button" href="#" data-toggle="modal" data-target="#exampleModal" data-id="{{$permohonanKonsumsi->id}}"><i class="fa fa-times"></i> Reject</a>
+								@endif
+								@if($permohonanKonsumsi->status_pelaksana != 'Terlaksana' && $permohonanKonsumsi->status_pj == 'Approved' )
+									<a class="btn btn-sm btn-delete btn-success" href="{{ route('admin::permohonan-konsumsi.terlaksana', [$permohonanKonsumsi->getKey()]) }}"><i class="fa fa-flag-checkered"></i> Selesai</a>
+								@endif
+							@else
+								@if($permohonanKonsumsi->status_pj == 'Pending')
+									<a class="btn btn-sm btn-delete btn-primary" href="{{ route('admin::permohonan-konsumsi.approve', [$permohonanKonsumsi->getKey()]) }}"><i class="fa fa-check"></i> Approve</a>
+									<a class="btn btn-sm btn-delete btn-danger reject-button" href="#"  data-toggle="modal" data-target="#exampleModal" data-id="{{$permohonanKonsumsi->id}}"><i class="fa fa-times"></i> Reject</a>
+								@endif
+								@if($permohonanKonsumsi->status_pj == 'Rejected')
+									<a class="btn btn-sm btn-edit btn-warning" href="{{ route('admin::permohonan-konsumsi.form-edit', [$permohonanKonsumsi->getKey()]) }}"><i class="fa fa-pencil"></i> Edit</a>
+									<a class="btn btn-sm btn-delete btn-danger delete-button" href="#" data-id="{{$permohonanKonsumsi->id}}"><i class="fa fa-trash"></i> Delete</a>
+								@endif
+								@if($permohonanKonsumsi->status_pelaksana != 'Terlaksana' && $permohonanKonsumsi->status_pj == 'Approved' )
+									<a class="btn btn-sm btn-delete btn-success" href="{{ route('admin::permohonan-konsumsi.terlaksana', [$permohonanKonsumsi->getKey()]) }}"><i class="fa fa-flag-checkered"></i> Selesai</a>
+									<a class="btn btn-sm btn-edit btn-warning" href="{{ route('admin::permohonan-konsumsi.form-edit', [$permohonanKonsumsi->getKey()]) }}"><i class="fa fa-pencil"></i> Edit</a>
+									<a class="btn btn-sm btn-delete btn-danger delete-button" href="#" data-id="{{$permohonanKonsumsi->id}}"><i class="fa fa-trash"></i> Delete</a>
+								@endif
+							@endif
+						</div>
+						<a href="#" class="kpi-toggle"><i class="fa fa-chevron-down"></i></a>
+					</div>
+				</div>
+				<div class="kpi-card-detail">
+					<div class="kpi-detail-grid">
+						<div class="kpi-detail-item"><span class="kpi-detail-label">No Permohonan Konsumsi</span><span class="kpi-detail-value">{{ $noPermohonan }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Ruangan</span><span class="kpi-detail-value">{{ $namaRuangan ?: '-' }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Tanggal Pemesanan</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->created_at->format('d-m-Y H:i:s') }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Tanggal</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->tanggal ? \Carbon\Carbon::parse($permohonanKonsumsi->tanggal)->format('d-m-Y') : '' }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Tanggal Selesai</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->tanggal_selesai ? \Carbon\Carbon::parse($permohonanKonsumsi->tanggal_selesai)->format('d-m-Y') : '' }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Sumber Dana</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->sumber_dana }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Jenis Konsumsi</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->jenis_konsumsi }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Jumlah Konsumsi</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->jumlah }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Pemohon</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->pemohon }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Status</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->status_pj }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Status Pelaksana</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->status_pelaksana }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Keterangan</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->keterangan }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Alasan Reject</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->alasan_reject }}</span></div>
+						<div class="kpi-detail-item"><span class="kpi-detail-label">Attachment</span><span class="kpi-detail-value"><a href="{{ asset('pemesanan_ruangan/attachment/'.$permohonanKonsumsi->attachment) }}" download>Click</a></span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	@endforeach
+</div>
+
+<div class="kpi-pagination">
+	<button id="kpi-prev" type="button" class="btn btn-default btn-sm">Prev</button>
+	<span id="kpi-page-info"></span>
+	<button id="kpi-next" type="button" class="btn btn-default btn-sm">Next</button>
+</div>
+
 	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 		<div class="modal-content">
@@ -156,6 +200,58 @@
 	</div>
 @stop
 @section('js')
+	<script>
+		$('#kpi-list').on('click', '.kpi-toggle', function (e) {
+			e.preventDefault();
+			var $card = $(this).closest('.kpi-card');
+			$card.find('.kpi-card-detail').slideToggle(150);
+			$(this).toggleClass('is-open');
+		});
+
+		var kpiPageSize = 10;
+		var kpiCurrentPage = 1;
+
+		function kpiFilteredCards() {
+			var keyword = $('#search-kegiatan').val().toLowerCase();
+			return $('#kpi-list .kpi-card').filter(function () {
+				var $c = $(this);
+				var kegiatan = ($c.data('kegiatan') || '').toString().toLowerCase();
+				var nomor = ($c.data('nomor') || '').toString().toLowerCase();
+				var keterangan = ($c.data('keterangan') || '').toString().toLowerCase();
+				return kegiatan.indexOf(keyword) !== -1 || nomor.indexOf(keyword) !== -1 || keterangan.indexOf(keyword) !== -1;
+			});
+		}
+
+		function kpiRenderPage() {
+			var filtered = kpiFilteredCards();
+			var totalPages = Math.max(1, Math.ceil(filtered.length / kpiPageSize));
+			if (kpiCurrentPage > totalPages) kpiCurrentPage = totalPages;
+			$('#kpi-list .kpi-card').hide();
+			filtered.slice((kpiCurrentPage - 1) * kpiPageSize, kpiCurrentPage * kpiPageSize).show();
+			$('#kpi-page-info').text('Halaman ' + kpiCurrentPage + ' dari ' + totalPages + ' (' + filtered.length + ' data)');
+			$('#kpi-prev').prop('disabled', kpiCurrentPage <= 1);
+			$('#kpi-next').prop('disabled', kpiCurrentPage >= totalPages);
+		}
+
+		$('#search-kegiatan').on('keyup', function () {
+			kpiCurrentPage = 1;
+			kpiRenderPage();
+		});
+
+		$('#kpi-prev').on('click', function () {
+			if (kpiCurrentPage > 1) {
+				kpiCurrentPage--;
+				kpiRenderPage();
+			}
+		});
+
+		$('#kpi-next').on('click', function () {
+			kpiCurrentPage++;
+			kpiRenderPage();
+		});
+
+		kpiRenderPage();
+	</script>
 	<script>
 		$('.reject-button').on('click', function () {
 			$('#id-konsumsi').val($(this).attr("data-id"));
@@ -185,7 +281,7 @@
 				   });
 			   }
 			   });
-	   }); 
+	   });
    </script>
 
 

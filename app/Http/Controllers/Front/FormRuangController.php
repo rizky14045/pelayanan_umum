@@ -2,32 +2,39 @@
 
 namespace App\Http\Controllers\Front;
 
-use Auth;
 use App\Models\Karyawan;
-use App\Models\SumberDana;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\PemesananRuangan;
+use App\Models\PermohonanKonsumsi;
 use App\Http\Controllers\Controller;
 
 class FormRuangController extends Controller
 {
-    
+
     public function submit(Request $req)
     {
+        if ($req->get('konsumsi') == 'Ya') {
+            $req->validate([
+                'konsumsi_jenis_konsumsi' => 'required',
+                'konsumsi_jenis_peserta' => 'required|in:Internal,Internal VIP,External,External VIP',
+                'konsumsi_attachment' => 'required|file|max:2048',
+            ]);
+        }
+
         $pemohon = Karyawan::where('nama', $req->get('pemohon'))->first();
 
         if($req->hasFile('attachment')){
             $file= $req->file('attachment');
             $image_name = $file->getClientOriginalName();
             $file->move(public_path('pemesanan_ruangan/attachment/'),$image_name);
-         
+
         }else{
             $image_name = null;
         }
-        
+
         $date = explode(' - ',$req->rangedate);
-        
+
         $pemesananRuangan = new PemesananRuangan;
         $pemesananRuangan->no_pemesanan_ruangan = $req->get('no_pemesanan_ruangan');
         $pemesananRuangan->tanggal = $date[0];
@@ -59,23 +66,37 @@ class FormRuangController extends Controller
         $notifications->save();
 
         if ($req->get('konsumsi') == 'Ya') {
-            $array_sumber_dana = SumberDana::get()->toArray();
-            $id = \Auth::guard('front')->id();
-            $pemohon = Karyawan::where('id', $id)->first();
-            $info = PemesananRuangan::where('no_pemesanan_ruangan', $req->get('no_pemesanan_ruangan'))->first();
-            $info['no_pemesanan_ruangan'] = str_replace('PR', 'PK', $req->get('no_pemesanan_ruangan'));
+            $konsumsiFile = $req->file('konsumsi_attachment');
+            $konsumsiFileName = $konsumsiFile->getClientOriginalName();
+            $konsumsiFile->move(public_path('pemesanan_ruangan/attachment/'), $konsumsiFileName);
 
-            $getJam = strtotime($info->waktu_awal);
-            $jam = date("H", $getJam);
-            if ($jam >= 12 || $jam <= 13) {
-                $info['makanan'] = 'Makan Siang';
-            } else {
-                $info['makanan'] = 'Snack';
-            }
-            return view('front.baru.konsumsi.create')->with(compact('array_sumber_dana', 'pemohon', 'info'));
-        } else {
-            // alert()->success('Berhasil', 'Data berhasil dibuat');
-            return redirect()->route('list-peminjaman-ruang');
+            $permohonanKonsumsi = new PermohonanKonsumsi;
+            // nomor() relation on PermohonanKonsumsi resolves via PemesananRuangan.id, not the PR-code string
+            $permohonanKonsumsi->no_permohonan_konsumsi = $pemesananRuangan->id;
+            $permohonanKonsumsi->tanggal = $date[0];
+            $permohonanKonsumsi->tanggal_selesai = $date[1];
+            $permohonanKonsumsi->jumlah = $req->get('konsumsi_jumlah');
+            $permohonanKonsumsi->sumber_dana = $req->get('konsumsi_sumber_dana');
+            $permohonanKonsumsi->kegiatan = $req->get('nama_acara');
+            $permohonanKonsumsi->jenis_konsumsi = $req->get('konsumsi_jenis_konsumsi');
+            $permohonanKonsumsi->jenis_peserta = $req->get('konsumsi_jenis_peserta');
+            $permohonanKonsumsi->jumlah_peserta = $req->get('jumlah_peserta');
+            $permohonanKonsumsi->pemohon = $req->get('pemohon');
+            $permohonanKonsumsi->pemohon_id = $req->get('pemohon_id');
+            $permohonanKonsumsi->status_pj = 'Pending';
+            $permohonanKonsumsi->status_supervisor = 'Pending';
+            $permohonanKonsumsi->status_manajer = 'Pending';
+            $permohonanKonsumsi->keterangan = $req->get('konsumsi_keterangan');
+            $permohonanKonsumsi->attachment = $konsumsiFileName;
+            $permohonanKonsumsi->save();
+
+            $konsumsiNotification = new Notification;
+            $konsumsiNotification->permohonan_konsumsi_id = $permohonanKonsumsi->id;
+            $konsumsiNotification->status = false;
+            $konsumsiNotification->save();
         }
+
+        // alert()->success('Berhasil', 'Data berhasil dibuat');
+        return redirect()->route('list-peminjaman-ruang');
     }
 }

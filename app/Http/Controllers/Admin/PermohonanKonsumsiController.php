@@ -360,6 +360,20 @@ class PermohonanKonsumsiController extends Controller
                     "max:255"
                 ]
             ],
+            'jenis_peserta' => [
+                'input' => "select",
+                'label' => "Jenis Peserta",
+                'options' => [
+                    ['label' => 'Internal', 'value' => 'Internal'],
+                    ['label' => 'Internal VIP', 'value' => 'Internal VIP'],
+                    ['label' => 'External', 'value' => 'External'],
+                    ['label' => 'External VIP', 'value' => 'External VIP'],
+                ],
+                'rules' => [
+                    "required",
+                    "in:Internal,Internal VIP,External,External VIP"
+                ]
+            ],
             'jumlah_peserta' => [
                 'input' => "number",
                 'label' => "Jumlah",

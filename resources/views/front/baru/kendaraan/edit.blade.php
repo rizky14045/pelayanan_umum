@@ -62,6 +62,22 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label for="jenis_perjalanan">
+                                        Jenis Perjalanan <span style="color:red;">*</span>
+                                    </label>
+                                    <div class="form-field">
+                                        <select class="form-control" name="jenis_perjalanan" id="jenis_perjalanan" required>
+                                            <option value="" disabled {{ $permohonan->jenis_perjalanan ? '' : 'selected' }}>Pilih Jenis Perjalanan</option>
+                                            <option value="Pergi Saja" {{ $permohonan->jenis_perjalanan == 'Pergi Saja' ? 'selected' : '' }}>Pergi Saja</option>
+                                            <option value="Pulang Pergi" {{ $permohonan->jenis_perjalanan == 'Pulang Pergi' ? 'selected' : '' }}>Pulang Pergi</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label for="tanggal_berangkat">
                                         Tanggal Berangkat
                                     </label>

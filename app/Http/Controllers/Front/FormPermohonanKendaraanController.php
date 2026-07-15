@@ -45,6 +45,9 @@ class FormPermohonanKendaraanController extends Controller
     protected function save(Request $req, PermohonanPemakaianKendaraan $permohonan)
     {
         $date = explode(' - ',$req->range_date);
+        $req->validate([
+            'jenis_perjalanan' => 'required|in:Pergi Saja,Pulang Pergi',
+        ]);
         // $req->validate([
         //     'pemohon' => 'required',
         //     'tujuan' => 'required',
@@ -62,6 +65,7 @@ class FormPermohonanKendaraanController extends Controller
         $permohonan->latlng =$req->get('latlng');
         $permohonan->tujuan =$req->get('tujuan');
         $permohonan->keperluan =$req->get('keperluan');
+        $permohonan->jenis_perjalanan =$req->get('jenis_perjalanan');
         $permohonan->penanggung_jawab =$req->get('penanggung_jawab');
         $permohonan->tanggal_berangkat =$date[0];
         $permohonan->tanggal_kembali =$date[1];

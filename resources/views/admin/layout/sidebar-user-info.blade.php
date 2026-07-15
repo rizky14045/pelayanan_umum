@@ -1,6 +1,16 @@
+@php
+  $userName = trim(request()->user()->name);
+  $words = preg_split('/\s+/', $userName);
+  $initials = count($words) >= 2
+    ? strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1))
+    : strtoupper(substr($userName, 0, 2));
+
+  $avatarColors = ['#F45B69', '#3E92CC', '#2E8B57', '#D46A6A', '#8E44AD', '#E67E22', '#16A085', '#C0392B', '#27AE60', '#D35400', '#6C5CE7', '#00A8A8'];
+  $avatarColor = $avatarColors[crc32($userName) % count($avatarColors)];
+@endphp
 <div class="user-info">
   <div class="image">
-    <img src="{{ asset('vendor/admin-bsb/images/user.png') }}" width="48" height="48" alt="User" />
+    <div style="width:48px;height:48px;border-radius:50%;background-color:{{ $avatarColor }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;">{{ $initials }}</div>
   </div>
   <div class="info-container">
     <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ request()->user()->name }}</div>

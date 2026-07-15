@@ -54,36 +54,53 @@ class FrontController extends Controller
         $tanggal_awal = date("Y-m-d", strtotime($date[0]));
         $tanggal_akhir = date("Y-m-d", strtotime($date[1]));
     
-        $ruangNotReady = $this->pemesananRuangan
+        // Booking lama dianggap bentrok kalau rentang waktunya beririsan dengan yang dicari,
+        // baik bentrok sebagian maupun seluruhnya (rumus overlap interval standar).
+        $conflictingBookings = $this->pemesananRuangan
             ->where('tanggal_selesai', '>=', $tanggal_awal)
             ->where('tanggal', '<=', $tanggal_akhir)
             ->where('status_pj', '!=', 'Rejected')
             ->where('status_pelaksana','Belum Terlaksana')
             ->get()
-            ->map(function($q) use ($waktu_awal, $waktu_akhir) {
-                // Convert waktu_awal and waktu_akhir to integer format
+            ->filter(function($q) use ($waktu_awal, $waktu_akhir) {
                 $time_awal = intval(date("Hi", $q->waktu_awal));
                 $time_akhir = intval(date("Hi", $q->waktu_akhir));
-                if($time_awal <= $waktu_akhir && $waktu_akhir <= $time_akhir){
-                    return $q;
-                } else if($time_awal <= $waktu_awal && $waktu_awal <= $time_akhir){
-                    return $q;
-                } else if($time_akhir <= $waktu_awal && $waktu_akhir <= $time_akhir){
-                    return $q;
-                } else if($time_akhir >= $waktu_awal && $waktu_akhir >= $time_akhir){
-                    return $q;
+                return $time_awal < $waktu_akhir && $waktu_awal < $time_akhir;
+            });
+
+        $ruangs = Ruang::where('kapasitas', '>=', $req->jumlah_peserta)->get();
+
+        // Tandai (bukan menyembunyikan) ruangan yang bentrok, baik langsung maupun lewat
+        // gabungan/anggotanya, supaya user tetap melihat & paham kenapa tidak bisa dipilih —
+        // sekaligus catat siapa pemesan yang bikin bentrok, per ruangan atomik.
+        $footprintMap = Ruang::footprintMap();
+        $conflictingAtomicIds = [];
+        $bookerNamesByAtomicId = [];
+        foreach ($conflictingBookings as $booking) {
+            $bookingFootprint = $footprintMap[(int) $booking->id_ruang] ?? [(int) $booking->id_ruang];
+            $bookerName = $booking->nama_pemesan ?: $booking->pemohon;
+            foreach ($bookingFootprint as $atomicId) {
+                $conflictingAtomicIds[] = $atomicId;
+                if ($bookerName) {
+                    $bookerNamesByAtomicId[$atomicId][] = $bookerName;
                 }
-            })
-            ->pluck('id_ruang')
-            ->toArray();
-    
-        $ruangs = Ruang::where('kapasitas', '>=', $req->jumlah_peserta)->get();    
-    
-        // Exclude booked rooms from the available rooms
-        if(!empty($ruangNotReady)){
-            $ruangs = $ruangs->whereNotIn('id', $ruangNotReady);
+            }
         }
-    
+        $conflictingAtomicIds = array_unique($conflictingAtomicIds);
+
+        $ruangs->each(function ($r) use ($footprintMap, $conflictingAtomicIds, $bookerNamesByAtomicId) {
+            $footprint = $footprintMap[(int) $r->id] ?? [(int) $r->id];
+            $r->is_conflicted = count(array_intersect($footprint, $conflictingAtomicIds)) > 0;
+
+            $names = [];
+            foreach ($footprint as $atomicId) {
+                foreach ($bookerNamesByAtomicId[$atomicId] ?? [] as $name) {
+                    $names[] = $name;
+                }
+            }
+            $r->conflict_booker_names = array_values(array_unique($names));
+        });
+
         $data['pemesanan_ruangan'] = $this->pemesananRuangan->get();
         $data['date'] = $req->range_date;
         $data['waktu_awal'] = $req->waktu_awal;
