@@ -22,7 +22,6 @@ class FormKonsumsiController extends Controller
         $image_name = $file->getClientOriginalName();
         $file->move(public_path('pemesanan_ruangan/attachment/'),$image_name);
 
-        dd($req->all());
         $pemohon = Karyawan::where('nama', $req->get('pemohon'))->first();
         // dd($pemohon);
         $permohonanKonsumsi = new PermohonanKonsumsi;
