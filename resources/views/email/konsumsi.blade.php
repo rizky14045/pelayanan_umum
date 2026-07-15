@@ -41,10 +41,9 @@
                                 style="border-collapse:collapse;margin-top:20px;">
 
                                 <tr style="background:#f8f9fa;">
-                                    <th align="left" width="35%" style="border:1px solid #dee2e6;">No. Pemesanan
-                                        Ruangan</th>
+                                    <th align="left" width="35%" style="border:1px solid #dee2e6;">No. Pemesanan</th>
                                     <td style="border:1px solid #dee2e6;">
-                                        {{ $surat['no_pemesanan'] }}
+                                        {{ $surat['no_permohonan_konsumsi'] }}
                                     </td>
                                 </tr>
 
@@ -58,7 +57,7 @@
                                 <tr style="background:#f8f9fa;">
                                     <th align="left" style="border:1px solid #dee2e6;">Ruangan</th>
                                     <td style="border:1px solid #dee2e6;">
-                                        {{ $surat['ruangan'] }}
+                                        {{ $surat['ruang'] }}
                                     </td>
                                 </tr>
 

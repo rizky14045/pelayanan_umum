@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Http\Controllers\Controller;
+use App\Mail\KonsumsiMail;
 use App\Models\Karyawan;
 use App\Models\Notification;
-use Illuminate\Http\Request;
 use App\Models\PermohonanKonsumsi;
-use App\Http\Controllers\Controller;
+use App\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class FormKonsumsiController extends Controller
@@ -55,6 +58,7 @@ class FormKonsumsiController extends Controller
             'jumlah_peserta' =>$req->get('jumlah_peserta'),
             'pemohon' =>$req->get('pemohon'),
             'keterangan' =>$req->get('keterangan'),
+            'ruang' =>$req->get('ruang'),
         ];
         $emailTo = User::where('role','SuperAdmin')->pluck('email')->toArray();
         Mail::to($emailTo)->send(new KonsumsiMail($data));
