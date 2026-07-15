@@ -47,13 +47,6 @@
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <th align="left" style="border:1px solid #dee2e6;">Nama Pemesan</th>
-                                    <td style="border:1px solid #dee2e6;">
-                                        {{ $surat['nama_pemesan'] }}
-                                    </td>
-                                </tr>
-
                                 <tr style="background:#f8f9fa;">
                                     <th align="left" style="border:1px solid #dee2e6;">Tujuan</th>
                                     <td style="border:1px solid #dee2e6;">
@@ -71,7 +64,7 @@
                                 <tr style="background:#f8f9fa;">
                                     <th align="left" style="border:1px solid #dee2e6;">Tanggal</th>
                                     <td style="border:1px solid #dee2e6;">
-                                        {{ $surat['tanggal'] }}
+                                        {{ $surat['tanggal_berangkat'] }} - {{$surat['tanggal_kembali']}}
                                     </td>
                                 </tr>
 

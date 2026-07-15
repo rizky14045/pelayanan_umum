@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Http\Controllers\Controller;
+use App\Mail\RuanganMail;
 use App\Models\Karyawan;
 use App\Models\Notification;
-use Illuminate\Http\Request;
 use App\Models\PemesananRuangan;
 use App\Models\PermohonanKonsumsi;
-use App\Http\Controllers\Controller;
+use App\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class FormRuangController extends Controller
 {
@@ -23,7 +26,7 @@ class FormRuangController extends Controller
         }
 
         $pemohon = Karyawan::where('nama', $req->get('pemohon'))->first();
-
+        dd($req->all());
         if($req->hasFile('attachment')){
             $file= $req->file('attachment');
             $image_name = $file->getClientOriginalName();
@@ -64,6 +67,24 @@ class FormRuangController extends Controller
         $notifications->pemesanan_ruangan_id = $pemesananRuangan->id;
         $notifications->status = false;
         $notifications->save();
+
+        $data = [
+            'no_pemesanan_ruangan' => $req->get('no_pemesanan_ruangan'),
+            'tanggal' => $date[0],
+            'tanggal_selesai' =>  $date[1],
+            'pemohon' => $req->get('pemohon'),
+            'nama_acara' =>$req->get('nama_acara'),
+            'nama_ruang' => $req->get('nama_ruang'),
+            'waktu_awal' =>$req->get('waktu_awal'),
+            'waktu_akhir' =>$req->get('waktu_akhir'),
+            'jumlah_peserta' =>$req->get('jumlah_peserta'),
+            'id_ruang' => $req->get('id_ruang'),
+            'attachment' => $image_name,
+            'keterangan' =>$req->get('keterangan'),
+            'design_ruangan' =>$req->get('design_ruangan'),
+        ];
+        $emailTo = User::where('role','SuperAdmin')->pluck('email')->toArray();
+        Mail::to($emailTo)->send(new RuanganMail($data));
 
         if ($req->get('konsumsi') == 'Ya') {
             $konsumsiFile = $req->file('konsumsi_attachment');

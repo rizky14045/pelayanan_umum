@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Front;
 
-use App\Models\Notification;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Mail\KendaraanMail;
+use App\Models\Notification;
 use App\Models\PermohonanPemakaianKendaraan;
+use App\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class FormPermohonanKendaraanController extends Controller
 {
@@ -13,6 +16,22 @@ class FormPermohonanKendaraanController extends Controller
     public function submit(Request $req)
     {
         $permohonan = new PermohonanPemakaianKendaraan;
+        $date = explode(' - ',$req->range_date);
+        $data = [
+            'tujuan' => $req->get('tujuan'),
+            'keperluan' => $req->get('keperluan'),
+            'jenis_perjalanan' => $req->get('jenis_perjalanan'),
+            'penanggung_jawab' => $req->get('penanggung_jawab'),
+            'tanggal_berangkat' => $date[0],
+            'tanggal_kembali' => $date[1],
+            'jam_berangkat' => $req->get('jam_berangkat'),
+            'jam_kembali' => $req->get('jam_kembali'),
+            'pemohon' => $req->get('pemohon'),
+            'keterangan' => $req->get('keterangan'),
+
+        ];
+        $emailTo = User::where('role','SuperAdmin')->pluck('email')->toArray();
+        Mail::to($emailTo)->send(new KendaraanMail($data));
         $this->save($req, $permohonan);
         
         // alert()->success('Berhasil', 'Data berhasil dibuat');

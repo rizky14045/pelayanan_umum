@@ -41,24 +41,31 @@
                                 style="border-collapse:collapse;margin-top:20px;">
 
                                 <tr style="background:#f8f9fa;">
-                                    <th align="left" width="35%" style="border:1px solid #dee2e6;">Nama Pemohon
+                                    <th align="left" width="35%" style="border:1px solid #dee2e6;">Nama Pemesan
                                     </th>
                                     <td style="border:1px solid #dee2e6;">
-                                        {{ $surat['nama_pemohon'] }}
+                                        {{ $surat['pemohon'] }}
+                                    </td>
+                                </tr>
+                                <tr style="background:#f8f9fa;">
+                                    <th align="left" width="35%" style="border:1px solid #dee2e6;">Nama Acara
+                                    </th>
+                                    <td style="border:1px solid #dee2e6;">
+                                        {{ $surat['nama_acara'] }}
                                     </td>
                                 </tr>
 
                                 <tr>
                                     <th align="left" style="border:1px solid #dee2e6;">Ruangan</th>
                                     <td style="border:1px solid #dee2e6;">
-                                        {{ $surat['nama_ruangan'] }}
+                                        {{ $surat['nama_ruang'] }}
                                     </td>
                                 </tr>
 
                                 <tr style="background:#f8f9fa;">
                                     <th align="left" style="border:1px solid #dee2e6;">Tanggal</th>
                                     <td style="border:1px solid #dee2e6;">
-                                        {{ $surat['tanggal'] }}
+                                        {{ $surat['tanggal'] }} - {{$surat['tanggal_selesai']}}
                                     </td>
                                 </tr>
 
@@ -78,23 +85,6 @@
                                     </td>
                                 </tr>
 
-                                @if (!empty($surat['keperluan']))
-                                    <tr>
-                                        <th align="left" style="border:1px solid #dee2e6;">Keperluan</th>
-                                        <td style="border:1px solid #dee2e6;">
-                                            {{ $surat['keperluan'] }}
-                                        </td>
-                                    </tr>
-                                @endif
-
-                                @if (!empty($surat['keterangan']))
-                                    <tr style="background:#f8f9fa;">
-                                        <th align="left" style="border:1px solid #dee2e6;">Keterangan</th>
-                                        <td style="border:1px solid #dee2e6;">
-                                            {{ $surat['keterangan'] }}
-                                        </td>
-                                    </tr>
-                                @endif
 
                                 <tr>
                                     <th align="left" style="border:1px solid #dee2e6;">Status</th>

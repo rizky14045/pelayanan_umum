@@ -16,11 +16,12 @@ class KendaraanMail extends Mailable
      *
      * @return void
      */
-    public function __construct()
-    {
-        //
-    }
+    protected $data;
 
+    public function __construct($data)
+    {
+        $this->data = $data;
+    }
     /**
      * Build the message.
      *
@@ -28,6 +29,7 @@ class KendaraanMail extends Mailable
      */
     public function build()
     {
-        return $this->view('email.kendaraan');
+        $data['surat'] = $this->data;
+        return $this->view('email.kendaraan',$data);
     }
 }

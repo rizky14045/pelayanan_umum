@@ -22,6 +22,7 @@ class FormKonsumsiController extends Controller
         $image_name = $file->getClientOriginalName();
         $file->move(public_path('pemesanan_ruangan/attachment/'),$image_name);
 
+        dd($req->all());
         $pemohon = Karyawan::where('nama', $req->get('pemohon'))->first();
         // dd($pemohon);
         $permohonanKonsumsi = new PermohonanKonsumsi;
@@ -43,6 +44,21 @@ class FormKonsumsiController extends Controller
         $permohonanKonsumsi->attachment = $image_name;
         $permohonanKonsumsi->save();
 
+        $data = [
+            'no_permohonan_konsumsi' => str_replace("PR", "PK", $req->get('no_permohonan_konsumsi')),
+            'tanggal' => $req->get('tanggal'),
+            'tanggal_selesai' => $req->get('tanggal_selesai'),
+            'jumlah' =>$req->get('jumlah'),
+            'sumber_dana' =>$req->get('sumber_dana'),
+            'kegiatan' =>$req->get('kegiatan'),
+            'jenis_konsumsi' =>$req->get('jenis_konsumsi'),
+            'jenis_peserta' =>$req->get('jenis_peserta'),
+            'jumlah_peserta' =>$req->get('jumlah_peserta'),
+            'pemohon' =>$req->get('pemohon'),
+            'keterangan' =>$req->get('keterangan'),
+        ];
+        $emailTo = User::where('role','SuperAdmin')->pluck('email')->toArray();
+        Mail::to($emailTo)->send(new KonsumsiMail($data));
         $notifications = new Notification;
         $notifications->permohonan_konsumsi_id = $permohonanKonsumsi->id;
         $notifications->status = false;
