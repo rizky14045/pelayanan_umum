@@ -26,7 +26,6 @@ class FormRuangController extends Controller
         }
 
         $pemohon = Karyawan::where('nama', $req->get('pemohon'))->first();
-        dd($req->all());
         if($req->hasFile('attachment')){
             $file= $req->file('attachment');
             $image_name = $file->getClientOriginalName();
@@ -75,8 +74,8 @@ class FormRuangController extends Controller
             'pemohon' => $req->get('pemohon'),
             'nama_acara' =>$req->get('nama_acara'),
             'nama_ruang' => $req->get('nama_ruang'),
-            'waktu_awal' =>$req->get('waktu_awal'),
-            'waktu_akhir' =>$req->get('waktu_akhir'),
+            'jam_mulai' =>$req->get('waktu_awal'),
+            'jam_selesai' =>$req->get('waktu_akhir'),
             'jumlah_peserta' =>$req->get('jumlah_peserta'),
             'id_ruang' => $req->get('id_ruang'),
             'attachment' => $image_name,
