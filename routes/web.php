@@ -90,6 +90,13 @@ Route::get('admin', 'Admin\DashboardController@pageDashboard')->name('admin::das
 //     return redirect('admin/permohonan-konsumsi');
 // })->name('admin::dashboard')->middleware('auth');
 
+Route::middleware('auth')->prefix('admin/dashboard/ajax')->name('admin::dashboard.ajax.')->namespace('Admin')->group(function() {
+    Route::get('konsumsi', 'DashboardController@ajaxKonsumsi')->name('konsumsi');
+    Route::get('kendaraan', 'DashboardController@ajaxKendaraan')->name('kendaraan');
+    Route::get('ruangan', 'DashboardController@ajaxRuangan')->name('ruangan');
+    Route::get('spj', 'DashboardController@ajaxSpj')->name('spj');
+});
+
 Route::get('admin/notifications', 'Admin\NotificationController@index')->name('admin::notifications.index')->middleware('auth');
 Route::get('admin/notifications/mark-all-read', 'Admin\NotificationController@markAllRead')->name('admin::notifications.mark-all-read')->middleware('auth');
 

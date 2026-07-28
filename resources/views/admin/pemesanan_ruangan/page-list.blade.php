@@ -5,6 +5,8 @@
 	.kpi-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
 	.kpi-toolbar-search{flex:1;max-width:420px;margin-left:auto;}
 	.kpi-toolbar-search .form-control{border-radius:20px;padding-left:16px;}
+	.kpi-toolbar-date{display:flex;align-items:center;gap:6px;}
+	.kpi-toolbar-date .form-control{border-radius:20px;width:170px;}
 
 	#kpi-list{display:flex;flex-direction:column;gap:10px;}
 
@@ -58,6 +60,10 @@
 	<div class="kpi-toolbar-search">
 		<input id="search-acara" class="form-control" placeholder="Cari acara atau no pemesanan ..."/>
 	</div>
+	<div class="kpi-toolbar-date">
+		<input type="date" id="filter-tanggal" class="form-control" title="Cek ruangan yang sudah dibooking pada tanggal ini">
+		<button type="button" id="filter-tanggal-reset" class="btn btn-default" style="display:none;">&times;</button>
+	</div>
 </div>
 
 <div id="kpi-list">
@@ -92,7 +98,7 @@
 			$jamMulai = $pemesananRuangan->waktu_awal ? date('H:i', $pemesananRuangan->waktu_awal) : '';
 			$jamSelesai = $pemesananRuangan->waktu_akhir ? date('H:i', $pemesananRuangan->waktu_akhir) : '';
 		@endphp
-		<div class="kpi-card" data-acara="{{ $pemesananRuangan->nama_acara }}" data-nomor="{{ $pemesananRuangan->no_pemesanan_ruangan }}">
+		<div class="kpi-card" data-acara="{{ $pemesananRuangan->nama_acara }}" data-nomor="{{ $pemesananRuangan->no_pemesanan_ruangan }}" data-tanggal-mulai="{{ $pemesananRuangan->tanggal }}" data-tanggal-selesai="{{ $pemesananRuangan->tanggal_selesai ?: $pemesananRuangan->tanggal }}">
 			<div class="kpi-card-accent" style="background: {{ $accentColor }}"></div>
 			<div class="kpi-card-body">
 				<div class="kpi-card-row">
@@ -208,11 +214,21 @@
 
 		function kpiFilteredCards() {
 			var keyword = $('#search-acara').val().toLowerCase();
+			var tanggalCek = $('#filter-tanggal').val();
 			return $('#kpi-list .kpi-card').filter(function () {
 				var $c = $(this);
 				var acara = ($c.data('acara') || '').toString().toLowerCase();
 				var nomor = ($c.data('nomor') || '').toString().toLowerCase();
-				return acara.indexOf(keyword) !== -1 || nomor.indexOf(keyword) !== -1;
+				var cocokKeyword = acara.indexOf(keyword) !== -1 || nomor.indexOf(keyword) !== -1;
+				if (!cocokKeyword) return false;
+
+				if (tanggalCek) {
+					var mulai = ($c.data('tanggal-mulai') || '').toString();
+					var selesai = ($c.data('tanggal-selesai') || '').toString();
+					if (!mulai || tanggalCek < mulai || tanggalCek > selesai) return false;
+				}
+
+				return true;
 			});
 		}
 
@@ -228,6 +244,19 @@
 		}
 
 		$('#search-acara').on('keyup', function () {
+			kpiCurrentPage = 1;
+			kpiRenderPage();
+		});
+
+		$('#filter-tanggal').on('change', function () {
+			$('#filter-tanggal-reset').toggle(!!this.value);
+			kpiCurrentPage = 1;
+			kpiRenderPage();
+		});
+
+		$('#filter-tanggal-reset').on('click', function () {
+			$('#filter-tanggal').val('');
+			$(this).hide();
 			kpiCurrentPage = 1;
 			kpiRenderPage();
 		});

@@ -16,16 +16,16 @@ if ($hover_effect) $classes[] = "hover-{$hover_effect}-effect";
 $infobox_class = $right_icon ? 'info-box-3' : ($solid_color ? 'info-box-2' : 'info-box');
 @endphp
 
-<div class="{{ $infobox_class }} {{ implode(' ', $classes) }}">
+<div @if(!empty($id)) id="{{ $id }}" @endif class="{{ $infobox_class }} {{ implode(' ', $classes) }}">
   <div class="icon {{ $icon_classes }}">
     <i class="material-icons {{ $icon_color ? "col-{$icon_color}" : "" }}">{{ $icon }}</i>
   </div>
   <div class="content">
     <div class="text {{ $label_classes }}">{{ $label }}</div>
-    <div class="number count-to"
-      data-from="0" 
-      data-to="{{ $count }}" 
-      data-speed="{{ $speed or 1000 }}" 
+    <div class="number{{ empty($id) ? ' count-to' : '' }}"
+      data-from="0"
+      data-to="{{ $count }}"
+      data-speed="{{ $speed or 1000 }}"
       data-fresh-interval="{{ $interval or 20 }}">
       {{ $count }}
     </div>
