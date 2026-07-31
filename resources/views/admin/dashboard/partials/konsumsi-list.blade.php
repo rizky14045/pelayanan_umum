@@ -8,8 +8,8 @@
 		</select>
 		<select name="konsumsi_pelaksana" class="form-control ms dash-filter-field">
 			<option value="">Semua Pelaksanaan</option>
-			<option value="Terlaksana" {{ request('konsumsi_pelaksana') == 'Terlaksana' ? 'selected' : '' }}>Terlaksana</option>
-			<option value="Belum Terlaksana" {{ request('konsumsi_pelaksana') == 'Belum Terlaksana' ? 'selected' : '' }}>Belum Terlaksana</option>
+			<option value="Terlaksana" {{ $konsumsiPelaksana == 'Terlaksana' ? 'selected' : '' }}>Terlaksana</option>
+			<option value="Belum Terlaksana" {{ $konsumsiPelaksana == 'Belum Terlaksana' ? 'selected' : '' }}>Belum Terlaksana</option>
 		</select>
 		<input type="date" name="konsumsi_dari" class="form-control ms dash-filter-field" value="{{ request('konsumsi_dari') }}" placeholder="Dari Tanggal">
 		<input type="date" name="konsumsi_sampai" class="form-control ms dash-filter-field" value="{{ request('konsumsi_sampai') }}" placeholder="Sampai Tanggal">

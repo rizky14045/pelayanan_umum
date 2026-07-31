@@ -8,8 +8,8 @@
 		</select>
 		<select name="spj_perjalanan" class="form-control ms dash-filter-field">
 			<option value="">Semua Perjalanan</option>
-			<option value="Belum Sampai" {{ request('spj_perjalanan') == 'Belum Sampai' ? 'selected' : '' }}>Belum Sampai</option>
-			<option value="Sudah Sampai" {{ request('spj_perjalanan') == 'Sudah Sampai' ? 'selected' : '' }}>Sudah Sampai</option>
+			<option value="Belum Sampai" {{ $spjPerjalanan == 'Belum Sampai' ? 'selected' : '' }}>Belum Sampai</option>
+			<option value="Sudah Sampai" {{ $spjPerjalanan == 'Sudah Sampai' ? 'selected' : '' }}>Sudah Sampai</option>
 		</select>
 		<input type="date" name="spj_dari" class="form-control ms dash-filter-field" value="{{ request('spj_dari') }}" placeholder="Dari Tanggal">
 		<input type="date" name="spj_sampai" class="form-control ms dash-filter-field" value="{{ request('spj_sampai') }}" placeholder="Sampai Tanggal">

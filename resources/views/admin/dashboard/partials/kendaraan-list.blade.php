@@ -2,9 +2,9 @@
 	<div class="dash-filter-row">
 		<select name="kendaraan_status" class="form-control ms dash-filter-field">
 			<option value="">Semua Status</option>
-			<option value="Pending" {{ request('kendaraan_status') == 'Pending' ? 'selected' : '' }}>Pending</option>
-			<option value="Approved" {{ request('kendaraan_status') == 'Approved' ? 'selected' : '' }}>Approved</option>
-			<option value="Rejected" {{ request('kendaraan_status') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+			<option value="Pending" {{ $kendaraanStatus == 'Pending' ? 'selected' : '' }}>Pending</option>
+			<option value="Approved" {{ $kendaraanStatus == 'Approved' ? 'selected' : '' }}>Approved</option>
+			<option value="Rejected" {{ $kendaraanStatus == 'Rejected' ? 'selected' : '' }}>Rejected</option>
 		</select>
 		<input type="date" name="kendaraan_dari" class="form-control ms dash-filter-field" value="{{ request('kendaraan_dari') }}" placeholder="Dari Tanggal">
 		<input type="date" name="kendaraan_sampai" class="form-control ms dash-filter-field" value="{{ request('kendaraan_sampai') }}" placeholder="Sampai Tanggal">

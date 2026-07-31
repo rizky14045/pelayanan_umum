@@ -8,8 +8,8 @@
 		</select>
 		<select name="ruangan_pelaksana" class="form-control ms dash-filter-field">
 			<option value="">Semua Pelaksanaan</option>
-			<option value="Terlaksana" {{ request('ruangan_pelaksana') == 'Terlaksana' ? 'selected' : '' }}>Terlaksana</option>
-			<option value="Belum Terlaksana" {{ request('ruangan_pelaksana') == 'Belum Terlaksana' ? 'selected' : '' }}>Belum Terlaksana</option>
+			<option value="Terlaksana" {{ $ruanganPelaksana == 'Terlaksana' ? 'selected' : '' }}>Terlaksana</option>
+			<option value="Belum Terlaksana" {{ $ruanganPelaksana == 'Belum Terlaksana' ? 'selected' : '' }}>Belum Terlaksana</option>
 		</select>
 		<input type="date" name="ruangan_dari" class="form-control ms dash-filter-field" value="{{ request('ruangan_dari') }}" placeholder="Dari Tanggal">
 		<input type="date" name="ruangan_sampai" class="form-control ms dash-filter-field" value="{{ request('ruangan_sampai') }}" placeholder="Sampai Tanggal">

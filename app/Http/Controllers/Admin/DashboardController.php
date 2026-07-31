@@ -30,13 +30,16 @@ class DashboardController extends Controller
      */
     public function ajaxKonsumsi(Request $request)
     {
-        $data['konsumsi'] = $this->filterKonsumsi($request)
+        $pelaksana = $this->effectiveValue($request, 'konsumsi_pelaksana', 'Belum Terlaksana');
+
+        $data['konsumsi'] = $this->filterKonsumsi($request, $pelaksana)
             ->latest()
             ->paginate(10, ['*'], 'konsumsi_page')
             ->appends($request->only(['konsumsi_status', 'konsumsi_pelaksana', 'konsumsi_dari', 'konsumsi_sampai', 'konsumsi_cari']));
+        $data['konsumsiPelaksana'] = $pelaksana;
 
         return response()->json([
-            'total' => $data['konsumsi']->total(),
+            'total' => PermohonanKonsumsi::where('status_pelaksana', 'Belum Terlaksana')->count(),
             'html' => view('admin::dashboard.partials.konsumsi-list', $data)->render(),
         ]);
     }
@@ -46,13 +49,16 @@ class DashboardController extends Controller
      */
     public function ajaxKendaraan(Request $request)
     {
-        $data['kendaraan'] = $this->filterKendaraan($request)
+        $status = $this->effectiveValue($request, 'kendaraan_status', 'Pending');
+
+        $data['kendaraan'] = $this->filterKendaraan($request, $status)
             ->latest()
             ->paginate(10, ['*'], 'kendaraan_page')
             ->appends($request->only(['kendaraan_status', 'kendaraan_dari', 'kendaraan_sampai', 'kendaraan_cari']));
+        $data['kendaraanStatus'] = $status;
 
         return response()->json([
-            'total' => $data['kendaraan']->total(),
+            'total' => PermohonanPemakaianKendaraan::where('status_pj', 'Pending')->count(),
             'html' => view('admin::dashboard.partials.kendaraan-list', $data)->render(),
         ]);
     }
@@ -62,13 +68,16 @@ class DashboardController extends Controller
      */
     public function ajaxRuangan(Request $request)
     {
-        $data['ruangan'] = $this->filterRuangan($request)
+        $pelaksana = $this->effectiveValue($request, 'ruangan_pelaksana', 'Belum Terlaksana');
+
+        $data['ruangan'] = $this->filterRuangan($request, $pelaksana)
             ->latest()
             ->paginate(10, ['*'], 'ruangan_page')
             ->appends($request->only(['ruangan_status', 'ruangan_pelaksana', 'ruangan_dari', 'ruangan_sampai', 'ruangan_cari']));
+        $data['ruanganPelaksana'] = $pelaksana;
 
         return response()->json([
-            'total' => $data['ruangan']->total(),
+            'total' => PemesananRuangan::where('status_pelaksana', 'Belum Terlaksana')->count(),
             'html' => view('admin::dashboard.partials.ruangan-list', $data)->render(),
         ]);
     }
@@ -78,21 +87,26 @@ class DashboardController extends Controller
      */
     public function ajaxSpj(Request $request)
     {
-        $data['spj'] = $this->filterSpj($request)
+        $perjalanan = $this->effectiveValue($request, 'spj_perjalanan', 'Belum Sampai');
+
+        $data['spj'] = $this->filterSpj($request, $perjalanan)
             ->latest()
             ->paginate(10, ['*'], 'spj_page')
             ->appends($request->only(['spj_status', 'spj_perjalanan', 'spj_dari', 'spj_sampai', 'spj_cari']));
+        $data['spjPerjalanan'] = $perjalanan;
 
         return response()->json([
-            'total' => $data['spj']->total(),
+            'total' => SuratPerintahJalan::where('status_perjalanan', 'Belum Sampai')->count(),
             'html' => view('admin::dashboard.partials.spj-list', $data)->render(),
         ]);
     }
 
     /**
      * Apply status / date range / search filters for Permohonan Konsumsi.
+     *
+     * @param string $pelaksana Resolved status_pelaksana filter value ('' means "semua").
      */
-    protected function filterKonsumsi(Request $request)
+    protected function filterKonsumsi(Request $request, $pelaksana)
     {
         list($dari, $sampai) = $this->normalizedDateRange($request, 'konsumsi_dari', 'konsumsi_sampai');
 
@@ -100,8 +114,8 @@ class DashboardController extends Controller
             ->when($request->filled('konsumsi_status'), function ($query) use ($request) {
                 $query->where('status_pj', $request->get('konsumsi_status'));
             })
-            ->when($request->filled('konsumsi_pelaksana'), function ($query) use ($request) {
-                $query->where('status_pelaksana', $request->get('konsumsi_pelaksana'));
+            ->when($pelaksana !== '' && $pelaksana !== null, function ($query) use ($pelaksana) {
+                $query->where('status_pelaksana', $pelaksana);
             })
             ->when($dari, function ($query) use ($dari) {
                 $query->where('tanggal', '>=', $dari);
@@ -116,14 +130,16 @@ class DashboardController extends Controller
 
     /**
      * Apply status / date range / search filters for Permohonan Pemakaian Kendaraan.
+     *
+     * @param string $status Resolved status_pj filter value ('' means "semua").
      */
-    protected function filterKendaraan(Request $request)
+    protected function filterKendaraan(Request $request, $status)
     {
         list($dari, $sampai) = $this->normalizedDateRange($request, 'kendaraan_dari', 'kendaraan_sampai');
 
         return PermohonanPemakaianKendaraan::query()
-            ->when($request->filled('kendaraan_status'), function ($query) use ($request) {
-                $query->where('status_pj', $request->get('kendaraan_status'));
+            ->when($status !== '' && $status !== null, function ($query) use ($status) {
+                $query->where('status_pj', $status);
             })
             ->when($dari, function ($query) use ($dari) {
                 $query->where('tanggal_berangkat', '>=', $dari);
@@ -142,8 +158,10 @@ class DashboardController extends Controller
 
     /**
      * Apply status / date range / search filters for Pemesanan Ruangan.
+     *
+     * @param string $pelaksana Resolved status_pelaksana filter value ('' means "semua").
      */
-    protected function filterRuangan(Request $request)
+    protected function filterRuangan(Request $request, $pelaksana)
     {
         list($dari, $sampai) = $this->normalizedDateRange($request, 'ruangan_dari', 'ruangan_sampai');
 
@@ -151,8 +169,8 @@ class DashboardController extends Controller
             ->when($request->filled('ruangan_status'), function ($query) use ($request) {
                 $query->where('status_pj', $request->get('ruangan_status'));
             })
-            ->when($request->filled('ruangan_pelaksana'), function ($query) use ($request) {
-                $query->where('status_pelaksana', $request->get('ruangan_pelaksana'));
+            ->when($pelaksana !== '' && $pelaksana !== null, function ($query) use ($pelaksana) {
+                $query->where('status_pelaksana', $pelaksana);
             })
             ->when($dari, function ($query) use ($dari) {
                 $query->where('tanggal', '>=', $dari);
@@ -167,8 +185,10 @@ class DashboardController extends Controller
 
     /**
      * Apply status / date range / search filters for Surat Perintah Jalan.
+     *
+     * @param string $perjalanan Resolved status_perjalanan filter value ('' means "semua").
      */
-    protected function filterSpj(Request $request)
+    protected function filterSpj(Request $request, $perjalanan)
     {
         list($dari, $sampai) = $this->normalizedDateRange($request, 'spj_dari', 'spj_sampai');
 
@@ -176,8 +196,8 @@ class DashboardController extends Controller
             ->when($request->filled('spj_status'), function ($query) use ($request) {
                 $query->where('status_pj', $request->get('spj_status'));
             })
-            ->when($request->filled('spj_perjalanan'), function ($query) use ($request) {
-                $query->where('status_perjalanan', $request->get('spj_perjalanan'));
+            ->when($perjalanan !== '' && $perjalanan !== null, function ($query) use ($perjalanan) {
+                $query->where('status_perjalanan', $perjalanan);
             })
             ->when($dari, function ($query) use ($dari) {
                 $query->where('tanggal_berangkat', '>=', $dari);
@@ -188,6 +208,17 @@ class DashboardController extends Controller
             ->when($request->filled('spj_cari'), function ($query) use ($request) {
                 $query->where('tujuan', 'like', '%' . $request->get('spj_cari') . '%');
             });
+    }
+
+    /**
+     * Resolve a filter's active value: whatever the request explicitly sent
+     * (including an empty string, meaning the user picked "Semua"), or the
+     * given default when the key is absent from the request entirely (i.e.
+     * the very first, un-filtered load of a dashboard section).
+     */
+    protected function effectiveValue(Request $request, $key, $default)
+    {
+        return $request->has($key) ? $request->get($key) : $default;
     }
 
     /**
