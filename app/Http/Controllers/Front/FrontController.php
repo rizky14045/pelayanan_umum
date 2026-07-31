@@ -78,7 +78,8 @@ class FrontController extends Controller
         $bookerNamesByAtomicId = [];
         foreach ($conflictingBookings as $booking) {
             $bookingFootprint = $footprintMap[(int) $booking->id_ruang] ?? [(int) $booking->id_ruang];
-            $bookerName = $booking->nama_pemesan ?: $booking->pemohon;
+            // $bookerName = $booking->nama_pemesan ?: $booking->pemohon;
+            $bookerName = $booking->pemohon;
             foreach ($bookingFootprint as $atomicId) {
                 $conflictingAtomicIds[] = $atomicId;
                 if ($bookerName) {
