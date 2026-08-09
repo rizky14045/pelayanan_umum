@@ -1,35 +1,41 @@
 @extends('front.baru.master')
 @section('content')
-@php
-$user = App\Models\Karyawan::where('id', auth()->guard('front')->id())->first();
-$avatarName = trim($user->nama);
-$avatarWords = preg_split('/\s+/', $avatarName);
-$avatarInitials = count($avatarWords) >= 2
-    ? strtoupper(substr($avatarWords[0], 0, 1) . substr($avatarWords[1], 0, 1))
-    : strtoupper(substr($avatarName, 0, 2));
-$avatarColors = ['#F45B69', '#3E92CC', '#2E8B57', '#D46A6A', '#8E44AD', '#E67E22', '#16A085', '#C0392B', '#27AE60', '#D35400', '#6C5CE7', '#00A8A8'];
-$avatarColor = $avatarColors[crc32($avatarName) % count($avatarColors)];
-@endphp
 <style>
-    tr td:last-child,
-    td,
-    th {
-        width: auto;
-        white-space: nowrap;
-        vertical-align: middle;
-    }
-    .user-profile-avatar .avatar-initials-lg {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        color: #fff;
-        font-size: 42px;
-        font-weight: 700;
-        margin: 0 auto;
-    }
+	.kpi-toolbar{display:flex;justify-content:flex-end;align-items:center;margin-bottom:16px;}
+	.kpi-toolbar-search{flex:1;max-width:360px;}
+	.kpi-toolbar-search .form-control{border-radius:20px;padding-left:16px;}
+
+	#kpi-list{display:flex;flex-direction:column;gap:10px;}
+
+	.kpi-card{display:flex;background:#fff;border:1px solid #EEF0F5;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);overflow:hidden;}
+	.kpi-card-accent{width:5px;flex-shrink:0;}
+	.kpi-card-body{flex:1;padding:12px 20px;}
+	.kpi-card-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+	.kpi-card-title-wrap{flex:1;min-width:0;}
+	.kpi-card-title-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+	.kpi-card-title{font-size:16px;font-weight:700;color:#2A2E43;word-break:break-word;overflow-wrap:anywhere;}
+	.kpi-card-meta{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap;}
+	.kpi-card-meta span{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#6B7080;}
+	.kpi-card-meta i{color:#A6AAB8;}
+	.kpi-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+	.kpi-badge-success{background:#E5F7EF;color:#1BAA6B;}
+	.kpi-badge-danger{background:#FDE7EC;color:#E03A5D;}
+	.kpi-badge-warning{background:#FFF3D6;color:#C98A0A;}
+	.kpi-card-actions{display:flex;align-items:center;gap:14px;flex-wrap:nowrap;flex-shrink:0;}
+	.kpi-toggle{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;color:#8A8FA3;font-size:14px;border-radius:50%;cursor:pointer;background:#F5F6FA;transition:background .15s,color .15s,transform .15s;}
+	.kpi-toggle:hover{background:#E1EDF4;color:#1F5C85;}
+	.kpi-toggle.is-open{color:#1F5C85;background:#E1EDF4;transform:rotate(180deg);}
+	.kpi-card-detail{display:none;margin-top:14px;padding-top:14px;border-top:1px solid #F0F1F5;}
+	.kpi-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;}
+	.kpi-detail-item .kpi-detail-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#A6AAB8;margin-bottom:2px;}
+	.kpi-detail-item .kpi-detail-value{font-size:14px;color:#2A2E43;}
+
+	.kpi-card-actions .btn{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#fff;border:none;box-shadow:none;line-height:1;}
+	.kpi-card-actions .btn:hover{filter:brightness(0.92);text-decoration:none;color:#fff;}
+	.kpi-card-actions .btn-danger{background:#DC2626;}
+
+	.kpi-pagination{display:flex;justify-content:center;align-items:center;gap:16px;margin-top:20px;}
+	.kpi-empty{padding:30px;text-align:center;color:#A6AAB8;background:#fff;border:1px solid #EEF0F5;border-radius:10px;}
 </style>
 <div class="container">
     <h1 class="page-title">List Permohonan Kendaraan</h1>
@@ -37,157 +43,74 @@ $avatarColor = $avatarColors[crc32($avatarName) % count($avatarColors)];
 <div class="container">
     <div class="row">
         <div class="col-md-3">
-            <aside class="user-profile-sidebar">
-                <div class="user-profile-avatar text-center">
-                    <span class="avatar-initials-lg" style="background-color: {{ $avatarColor }};">{{ $avatarInitials }}</span>
-                    <h5>{{$user->nama}}</h5>
-                    <p>{{$user->jabatan}}</p>
-                </div>
-                <ul class="list user-profile-nav">
-                    <li>
-                        <a href="{{route('profile.index')}}">
-                            <i class="fa fa-user"></i>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{route('profile.setting')}}">
-                            <i class="fa fa-cog"></i>
-                            Pengaturan
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{route('list-peminjaman-ruang')}}">
-                            <i class="fa fa-home"></i>
-                            Pemesanan Ruangan
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{route('list-permohonan-konsumsi')}}">
-                            <i class="fa fa-spoon"></i>
-                            Permohonan Konsumsi
-                        </a>
-                    </li>
-                    {{-- <li>
-                        <a href="{{route('list-permohonan-atk')}}">
-                            <i class="fa fa-pencil"></i>
-                            Permohonan ATK
-                        </a>
-                    </li> --}}
-                    <li class="active">
-                        <a href="{{route('list-permohonan-kendaraan')}}">
-                            <i class="fa fa-map-marker"></i>
-                            Permohonan Kendaraan
-                        </a>
-                    </li>
-                    {{-- <li>
-                        <a href="{{route('list-surat-perintah-jalan')}}">
-                            <i class="fa fa-map-marker"></i>
-                            Surat Perintah Jalan
-                        </a>
-                    </li> --}}
-                </ul>
-            </aside>
+            @include('front.baru.profile.partials.sidebar', ['active' => 'kendaraan'])
         </div>
 
-        <div class="col-md-9" style="overflow-x: scroll;">
-            <table id="my-table" class="table table-bordered table-striped table-booking-history">
-                <thead>
-                    <tr align="center">
-                        <th class="text-center column-number" width="20">
-                            No
-                        </th>
-                        <th class="column-pemohon">
-                            Pemohon
-                        </th>
-                        <th class="column-tujuan">
-                            Tujuan
-                        </th>
-                        <th class="column-keperluan">
-                            Keperluan
-                        </th>
-                        <th class="column-penanggung_jawab">
-                           Nama Pemesan
-                        </th>
-                        <th class="column-tanggal_berangkat">
-                            Tanggal Berangkat
-                        </th>
-                        <th class="column-tanggal_kembali">
-                            Tanggal Kembali
-                        </th>
-                        <th class="column-jam_berangkat">
-                            Jam Berangkat
-                        </th>
-                        <th class="column-jam-kembali">
-                            Jam Kembali
-                        </th>
-                        <th class="column-nama-driver">
-                            Nama Driver
-                        </th>
-                        <th class="column-status_pj">
-                            Status Permohon
-                        </th>
-                        <th class="column-status_pj">
-                            Alasan Reject
-                        </th>
-                        <th class="text-center column-action">
-                            Action
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($pagination as $i => $permohonanPemakaianKendaraan)
-                    <tr align="center">
-                        <td class="text-center column-number">
-                            {{ $loop->iteration }}
-                        </td>
-                        <td class="column-pemohon">
-                            {{ $permohonanPemakaianKendaraan->pemohon }}
-                        </td>
-                        <td class="column-tujuan">
-                            {{ $permohonanPemakaianKendaraan->tujuan }}
-                        </td>
-                        <td class="column-keperluan">
-                            {{ $permohonanPemakaianKendaraan->keperluan }}
-                        </td>
-                        <td class="column-penanggung_jawab">
-                            {{ $permohonanPemakaianKendaraan->penanggung_jawab }}
-                        </td>
-                        <td class="column-tanggal_berangkat">
-                            {{ $permohonanPemakaianKendaraan->tanggal_berangkat }}
-                        </td>
-                        <td class="column-tanggal_kembali">
-                            {{ $permohonanPemakaianKendaraan->tanggal_kembali }}
-                        </td>
-                        <td class="column-jam_berangkat">
-                            {{ $permohonanPemakaianKendaraan->jam_berangkat }}
-                        </td>
-                        <td class="column-jam_kembali">
-                            {{ $permohonanPemakaianKendaraan->jam_kembali }}
-                        </td>
-                        <td class="column-nama-driver">
-                            {{ $permohonanPemakaianKendaraan->spj->driver->nama_driver ?? '-' }}
-                        </td>
-                        <td class="column-status_pj">
-                            {{ $permohonanPemakaianKendaraan->status_pj }}
-                        </td>
-                        <td class="column-status_pj">
-                            {{ $permohonanPemakaianKendaraan->alasan_reject }}
-                        </td>
-                        <td class="text-center column-action" width="200">
-                                @if($permohonanPemakaianKendaraan->status_pj == 'Pending')
-                                {{-- <a href="{{ route('permohonankendaraan.edit', $permohonanPemakaianKendaraan->id) }}"
-                                    class="btn btn-info btn-sm">Edit</a> --}}
-                                <a
-                                    href="#"
-                                    data-id="{{$permohonanPemakaianKendaraan->id}}"
-                                    class="btn btn-danger btn-sm delete-button">Delete</a>
-                                @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <div class="col-md-9">
+			<div class="kpi-toolbar">
+				<div class="kpi-toolbar-search">
+					<input id="search-kendaraan" class="form-control" placeholder="Cari tujuan atau keperluan ..."/>
+				</div>
+			</div>
+
+			<div id="kpi-list">
+				@forelse($pagination as $permohonanPemakaianKendaraan)
+					@php
+						if ($permohonanPemakaianKendaraan->status_pj == 'Approved') {
+							$accentColor = '#2FBF88';
+							$statusBadge = ['icon' => 'fa-check-circle', 'class' => 'kpi-badge-success', 'label' => 'Disetujui'];
+						} elseif ($permohonanPemakaianKendaraan->status_pj == 'Rejected') {
+							$accentColor = '#FF6584';
+							$statusBadge = ['icon' => 'fa-times-circle', 'class' => 'kpi-badge-danger', 'label' => 'Ditolak'];
+						} else {
+							$accentColor = '#1F5C85';
+							$statusBadge = ['icon' => 'fa-clock-o', 'class' => 'kpi-badge-warning', 'label' => 'Pending'];
+						}
+					@endphp
+					<div class="kpi-card" data-tujuan="{{ $permohonanPemakaianKendaraan->tujuan }}" data-keperluan="{{ $permohonanPemakaianKendaraan->keperluan }}">
+						<div class="kpi-card-accent" style="background: {{ $accentColor }}"></div>
+						<div class="kpi-card-body">
+							<div class="kpi-card-row">
+								<div class="kpi-card-title-wrap">
+									<div class="kpi-card-title-line">
+										<span class="kpi-card-title">{{ $permohonanPemakaianKendaraan->keperluan }}</span>
+										<span class="kpi-badge {{ $statusBadge['class'] }}"><i class="fa {{ $statusBadge['icon'] }}"></i> {{ $statusBadge['label'] }}</span>
+									</div>
+									<div class="kpi-card-meta">
+										<span><i class="fa fa-map-marker"></i> {{ $permohonanPemakaianKendaraan->tujuan }}</span>
+										<span><i class="fa fa-calendar"></i> {{ $permohonanPemakaianKendaraan->tanggal_berangkat }} &ndash; {{ $permohonanPemakaianKendaraan->tanggal_kembali }}</span>
+										<span><i class="fa fa-clock-o"></i> {{ $permohonanPemakaianKendaraan->jam_berangkat }} &ndash; {{ $permohonanPemakaianKendaraan->jam_kembali }}</span>
+										<span><i class="fa fa-id-card"></i> {{ $permohonanPemakaianKendaraan->spj->driver->nama_driver ?? 'Belum ada driver' }}</span>
+									</div>
+								</div>
+								<div class="kpi-card-actions">
+									<div class="kpi-action-buttons">
+										@if($permohonanPemakaianKendaraan->status_pj == 'Pending')
+											<a class="btn btn-sm btn-danger delete-button" href="#" data-id="{{$permohonanPemakaianKendaraan->id}}"><i class="fa fa-trash"></i> Delete</a>
+										@endif
+									</div>
+									<a href="#" class="kpi-toggle"><i class="fa fa-chevron-down"></i></a>
+								</div>
+							</div>
+							<div class="kpi-card-detail">
+								<div class="kpi-detail-grid">
+									<div class="kpi-detail-item"><span class="kpi-detail-label">Pemohon</span><span class="kpi-detail-value">{{ $permohonanPemakaianKendaraan->pemohon }}</span></div>
+									<div class="kpi-detail-item"><span class="kpi-detail-label">Penanggung Jawab</span><span class="kpi-detail-value">{{ $permohonanPemakaianKendaraan->penanggung_jawab }}</span></div>
+									<div class="kpi-detail-item"><span class="kpi-detail-label">Alasan Reject</span><span class="kpi-detail-value">{{ $permohonanPemakaianKendaraan->alasan_reject ?: '-' }}</span></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				@empty
+					<div class="kpi-empty">Belum ada permohonan kendaraan.</div>
+				@endforelse
+			</div>
+
+			<div class="kpi-pagination">
+				<button id="kpi-prev" type="button" class="btn btn-default btn-sm">Prev</button>
+				<span id="kpi-page-info"></span>
+				<button id="kpi-next" type="button" class="btn btn-default btn-sm">Next</button>
+			</div>
         </div>
     </div>
 </div>
@@ -195,6 +118,55 @@ $avatarColor = $avatarColors[crc32($avatarName) % count($avatarColors)];
 
 @section('script')
 <script>
+	$('#kpi-list').on('click', '.kpi-toggle', function (e) {
+		e.preventDefault();
+		var $card = $(this).closest('.kpi-card');
+		$card.find('.kpi-card-detail').slideToggle(150);
+		$(this).toggleClass('is-open');
+	});
+
+	var kpiPageSize = 10;
+	var kpiCurrentPage = 1;
+
+	function kpiFilteredCards() {
+		var keyword = $('#search-kendaraan').val().toLowerCase();
+		return $('#kpi-list .kpi-card').filter(function () {
+			var tujuan = ($(this).data('tujuan') || '').toString().toLowerCase();
+			var keperluan = ($(this).data('keperluan') || '').toString().toLowerCase();
+			return tujuan.indexOf(keyword) !== -1 || keperluan.indexOf(keyword) !== -1;
+		});
+	}
+
+	function kpiRenderPage() {
+		var filtered = kpiFilteredCards();
+		var totalPages = Math.max(1, Math.ceil(filtered.length / kpiPageSize));
+		if (kpiCurrentPage > totalPages) kpiCurrentPage = totalPages;
+		$('#kpi-list .kpi-card').hide();
+		filtered.slice((kpiCurrentPage - 1) * kpiPageSize, kpiCurrentPage * kpiPageSize).show();
+		$('#kpi-page-info').text('Halaman ' + kpiCurrentPage + ' dari ' + totalPages + ' (' + filtered.length + ' data)');
+		$('#kpi-prev').prop('disabled', kpiCurrentPage <= 1);
+		$('#kpi-next').prop('disabled', kpiCurrentPage >= totalPages);
+	}
+
+	$('#search-kendaraan').on('keyup', function () {
+		kpiCurrentPage = 1;
+		kpiRenderPage();
+	});
+
+	$('#kpi-prev').on('click', function () {
+		if (kpiCurrentPage > 1) {
+			kpiCurrentPage--;
+			kpiRenderPage();
+		}
+	});
+
+	$('#kpi-next').on('click', function () {
+		kpiCurrentPage++;
+		kpiRenderPage();
+	});
+
+	kpiRenderPage();
+
     $('.delete-button').on('click', function(e){
        var form = this;
        var id = $(this).attr("data-id")
@@ -218,7 +190,6 @@ $avatarColor = $avatarColors[crc32($avatarName) % count($avatarColors)];
                });
            }
            });
-   }); 
+   });
 </script>
-
 @endsection
