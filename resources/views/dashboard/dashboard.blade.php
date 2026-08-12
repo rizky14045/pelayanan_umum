@@ -95,13 +95,9 @@
                         <div class="room-desc col-md-9">
                             <h4 class="room-desc-header">{{$item->nama_acara}}</h4>
                             <div class="room-desc-info col-md-12">
-                                <img src="{{asset('vendor/dashboard')}}/images/icon-user.png" alt=""> Dipesan oleh : {{$item->pemohon}}</p>
                                 <img src="{{asset('vendor/dashboard')}}/images/icon-user.png" alt=""> Jumlah peserta : {{$item->jumlah_peserta}}</p>
                                 <img src="{{asset('vendor/dashboard')}}/images/icon-calendar.png" alt=""> {{ indonesian_date($item->tanggal) }} - {{indonesian_date($item->tanggal_selesai) }}</p>
                                 <img src="{{asset('vendor/dashboard')}}/images/icon-clock.png" alt=""> {{ date("H:i", $item->waktu_awal) }} - {{ date("H:i", $item->waktu_akhir) }}</p>
-                                @if($item->design_ruangan)
-                                <img src="{{asset('vendor/dashboard')}}/images/icon-user.png" alt=""> Setting Ruangan : {{$item->design_ruangan}}</p>
-                                @endif
                             </div>
                         </div>
                     </div>

@@ -26,9 +26,7 @@ public function dashboard() {
             ->orWhereNull('tanggal_selesai');
     })
     ->select('pemesanan_ruangan.nama_acara', 'pemesanan_ruangan.jumlah_peserta',
-    'pemesanan_ruangan.tanggal', 'pemesanan_ruangan.tanggal_selesai', 'pemesanan_ruangan.waktu_awal', 'pemesanan_ruangan.waktu_akhir',
-    'pemesanan_ruangan.pemohon', 'pemesanan_ruangan.design_ruangan',
-    'ruang.nama_ruang', 'ruang.foto_ruang')
+    'pemesanan_ruangan.tanggal', 'pemesanan_ruangan.tanggal_selesai', 'pemesanan_ruangan.waktu_awal', 'pemesanan_ruangan.waktu_akhir', 'ruang.nama_ruang', 'ruang.foto_ruang')
     ->orderBy('pemesanan_ruangan.tanggal','ASC')
     ->take(8)->get();
     $data['ruangan'] = $ruangan;

@@ -48,6 +48,32 @@
 
 	.kpi-btn-create{display:inline-flex;align-items:center;gap:8px;background:#1F5C85;color:#fff;border:none;border-radius:20px;padding:9px 20px;font-size:14px;font-weight:600;box-shadow:0 2px 6px rgba(31,92,133,.35);transition:filter .15s,transform .15s;}
 	.kpi-btn-create:hover{filter:brightness(0.94);transform:translateY(-1px);color:#fff;text-decoration:none;}
+
+	.kpi-btn-outline{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#1F5C85;border:1px solid #1F5C85;border-radius:20px;padding:8px 20px;font-size:14px;font-weight:600;transition:background .15s,color .15s;}
+	.kpi-btn-outline:hover{background:#1F5C85;color:#fff;text-decoration:none;}
+
+	.avail-form-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:16px;}
+	.avail-form-field{flex:1 1 140px;min-width:120px;}
+	.avail-form-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#8A8FA3;margin-bottom:4px;}
+	.avail-submit{height:34px;padding:6px 20px;font-size:13px;background:#1F5C85;border-color:#1F5C85;border-radius:20px;color:#fff;}
+	.avail-submit:hover{background:#184a6b;border-color:#184a6b;color:#fff;}
+
+	#avail-results{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;}
+	.avail-card{display:flex;background:#fff;border:1px solid #EEF0F5;border-radius:10px;overflow:hidden;}
+	.avail-card-accent{width:5px;flex-shrink:0;}
+	.avail-card-body{flex:1;padding:10px 16px;}
+	.avail-card-title-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+	.avail-card-title{font-size:14px;font-weight:700;color:#2A2E43;}
+	.avail-card-meta{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap;}
+	.avail-card-meta span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#6B7080;}
+	.avail-conflict-by{color:#E03A5D !important;font-weight:600;}
+	.avail-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+	.avail-badge-success{background:#E5F7EF;color:#1BAA6B;}
+	.avail-badge-danger{background:#FDE7EC;color:#E03A5D;}
+	.avail-badge-muted{background:#F0F1F5;color:#8A8FA3;}
+	.avail-empty{padding:20px;text-align:center;color:#A6AAB8;font-size:13px;}
+	.avail-loading{padding:20px;text-align:center;color:#A6AAB8;font-size:13px;}
+	.avail-loading i{margin-right:6px;color:#1F5C85;}
 </style>
 
 <div class="block-header">
@@ -57,8 +83,9 @@
 
 <div class="kpi-toolbar">
 	<a class="kpi-btn-create" href="{{ route('admin::pemesanan-ruangan.form-create') }}"><i class="fa fa-plus"></i> Tambah Pemesanan</a>
+	<a href="#" class="kpi-btn-outline" data-toggle="modal" data-target="#availabilityModal"><i class="fa fa-search"></i> Cek Ketersediaan Ruangan</a>
 	<div class="kpi-toolbar-search">
-		<input id="search-acara" class="form-control" placeholder="Cari acara atau no pemesanan ..."/>
+		<input id="search-acara" class="form-control" placeholder="Cari acara ..."/>
 	</div>
 	<div class="kpi-toolbar-date">
 		<input type="date" id="filter-tanggal" class="form-control" title="Cek ruangan yang sudah dibooking pada tanggal ini">
@@ -199,6 +226,43 @@
 	</div>
   </div>
 
+<div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title" id="availabilityModalLabel">Cek Ketersediaan Ruangan</h5>
+		  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		  </button>
+		</div>
+		<div class="modal-body">
+		  <form id="avail-form">
+			<div class="avail-form-row">
+				<div class="avail-form-field">
+					<label>Tanggal</label>
+					<input type="date" name="tanggal" class="form-control" required>
+				</div>
+				<div class="avail-form-field">
+					<label>Jam Mulai</label>
+					<input type="time" name="waktu_awal" class="form-control" value="08:00" required>
+				</div>
+				<div class="avail-form-field">
+					<label>Jam Selesai</label>
+					<input type="time" name="waktu_akhir" class="form-control" value="17:00" required>
+				</div>
+				<div class="avail-form-field" style="flex:0 0 auto;">
+					<button type="submit" class="avail-submit">Cek</button>
+				</div>
+			</div>
+		  </form>
+		  <div id="avail-results">
+			<div class="avail-empty">Pilih tanggal dan jam, lalu klik Cek untuk melihat ketersediaan ruangan.</div>
+		  </div>
+		</div>
+	  </div>
+	</div>
+</div>
+
 @stop
 @section('js')
 	<script>
@@ -305,6 +369,20 @@
 				}
 				});
         });
+	</script>
+	<script>
+		$('#avail-form').on('submit', function (e) {
+			e.preventDefault();
+			var $results = $('#avail-results');
+			$results.html('<div class="avail-loading"><i class="fa fa-spinner fa-spin"></i> Mengecek ketersediaan...</div>');
+			$.get("{{ route('admin::pemesanan-ruangan.check-availability') }}", $(this).serialize())
+				.done(function (res) {
+					$results.html(res.html);
+				})
+				.fail(function () {
+					$results.html('<div class="avail-empty">Gagal mengecek ketersediaan, silakan coba lagi.</div>');
+				});
+		});
 	</script>
 
 @stop

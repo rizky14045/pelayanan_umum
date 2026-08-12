@@ -16,3 +16,47 @@
     {!! $form->render() !!}
 </div>
 @stop
+@section('js')
+<script>
+(function ($) {
+    var EXCLUDE_ID = "{{ $id }}";
+
+    function refreshRoomOptions() {
+        var tanggal = $('#input-tanggal').val();
+        var waktuAwal = $('#input-waktu_awal').val();
+        var waktuAkhir = $('#input-waktu_akhir').val();
+        if (!tanggal || !waktuAwal || !waktuAkhir) {
+            return;
+        }
+
+        var $select = $('#input-id_ruang');
+        var currentValue = $select.val();
+
+        $.get("{{ route('admin::pemesanan-ruangan.available-rooms') }}", {
+            tanggal: tanggal,
+            waktu_awal: waktuAwal,
+            waktu_akhir: waktuAkhir,
+            exclude_id: EXCLUDE_ID
+        }).done(function (res) {
+            var html = '<option value="">-- Pick Id Ruang --</option>';
+            var stillAvailable = false;
+            $.each(res.rooms || [], function (i, room) {
+                var isSelected = String(room.id) === String(currentValue);
+                if (isSelected) stillAvailable = true;
+                html += '<option value="' + room.id + '"' + (isSelected ? ' selected' : '') + '>' + room.label + '</option>';
+            });
+            $select.html(html);
+            if (currentValue && !stillAvailable) {
+                $select.val('');
+            }
+            if ($.fn.selectpicker) {
+                $select.selectpicker('refresh');
+            }
+        });
+    }
+
+    $(document).on('change', '#input-tanggal, #input-waktu_awal, #input-waktu_akhir', refreshRoomOptions);
+    $(refreshRoomOptions);
+})(jQuery);
+</script>
+@stop

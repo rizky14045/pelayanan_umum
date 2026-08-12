@@ -211,6 +211,8 @@ Route::name('admin::pemesanan-ruangan.')->prefix('admin/pemesanan-ruangan')->mid
     Route::get('approve/{id}', 'PemesananRuanganController@approve')->name('approve');
     Route::get('reject', 'PemesananRuanganController@reject')->name('reject');
     Route::get('terlaksana/{id}', 'PemesananRuanganController@terlaksana')->name('terlaksana');
+    Route::get('check-availability', 'PemesananRuanganController@checkAvailability')->name('check-availability');
+    Route::get('available-rooms', 'PemesananRuanganController@availableRooms')->name('available-rooms');
 });
 
 Route::name('admin::karyawan.')->prefix('admin/karyawan')->middleware('auth')->namespace('Admin')->group(function() {
