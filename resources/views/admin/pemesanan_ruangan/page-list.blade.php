@@ -124,6 +124,7 @@
 			$tanggalSelesai = $pemesananRuangan->tanggal_selesai ? \Carbon\Carbon::parse($pemesananRuangan->tanggal_selesai)->format('d-m-Y') : '';
 			$jamMulai = $pemesananRuangan->waktu_awal ? date('H:i', $pemesananRuangan->waktu_awal) : '';
 			$jamSelesai = $pemesananRuangan->waktu_akhir ? date('H:i', $pemesananRuangan->waktu_akhir) : '';
+			$namaPemesan = $pemesananRuangan->nama_pemesan ?: $pemesananRuangan->pemohon;
 		@endphp
 		<div class="kpi-card" data-acara="{{ $pemesananRuangan->nama_acara }}" data-nomor="{{ $pemesananRuangan->no_pemesanan_ruangan }}" data-tanggal-mulai="{{ $pemesananRuangan->tanggal }}" data-tanggal-selesai="{{ $pemesananRuangan->tanggal_selesai ?: $pemesananRuangan->tanggal }}">
 			<div class="kpi-card-accent" style="background: {{ $accentColor }}"></div>
@@ -138,6 +139,12 @@
 						<div class="kpi-card-meta">
 							<span><i class="fa fa-calendar"></i> {{ $tanggalMulai }} &ndash; {{ $tanggalSelesai }}</span>
 							<span><i class="fa fa-clock-o"></i> {{ $jamMulai }} &ndash; {{ $jamSelesai }}</span>
+							<span><i class="fa fa-building"></i> {{ $pemesananRuangan->ruang['nama_ruang'] ?? '-' }}</span>
+							<span><i class="fa fa-th-large"></i> {{ $pemesananRuangan->design_ruangan ?: '-' }}</span>
+							<span><i class="fa fa-user"></i> {{ $namaPemesan ?: '-' }}</span>
+							@if($pemesananRuangan->keterangan)
+							<span><i class="fa fa-info-circle"></i> {{ $pemesananRuangan->keterangan }}</span>
+							@endif
 						</div>
 					</div>
 					<div class="kpi-card-actions">
@@ -154,8 +161,10 @@
 									<a class="btn btn-sm btn-edit btn-warning" href="{{ route('admin::pemesanan-ruangan.form-edit', [$pemesananRuangan->getKey()]) }}"><i class="fa fa-pencil"></i> Edit</a>
 									<a class="btn btn-sm btn-delete btn-danger delete-button" href="#" data-id="{{$pemesananRuangan->id}}"><i class="fa fa-trash"></i> Delete</a>
 								@endif
-								@if($pemesananRuangan->status_pj == 'Approved' && $pemesananRuangan->status_pelaksana == 'Belum Terlaksana' )
-									<a class="btn btn-sm btn-delete btn-success" href="{{ route('admin::pemesanan-ruangan.terlaksana', [$pemesananRuangan->getKey()]) }}"><i class="fa fa-flag-checkered"></i> Selesai</a>
+								@if($pemesananRuangan->status_pj == 'Approved')
+									@if($pemesananRuangan->status_pelaksana == 'Belum Terlaksana')
+										<a class="btn btn-sm btn-delete btn-success" href="{{ route('admin::pemesanan-ruangan.terlaksana', [$pemesananRuangan->getKey()]) }}"><i class="fa fa-flag-checkered"></i> Selesai</a>
+									@endif
 									<a class="btn btn-sm btn-edit btn-warning" href="{{ route('admin::pemesanan-ruangan.form-edit', [$pemesananRuangan->getKey()]) }}"><i class="fa fa-pencil"></i> Edit</a>
 									<a class="btn btn-sm btn-delete btn-danger delete-button" href="#" data-id="{{$pemesananRuangan->id}}"><i class="fa fa-trash"></i> Delete</a>
 								@endif
@@ -174,12 +183,9 @@
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Tanggal Pemesanan</span><span class="kpi-detail-value">{{ $pemesananRuangan->created_at->format('d-m-Y H:i:s') }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Pemohon</span><span class="kpi-detail-value">{{ $pemesananRuangan->pemohon }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Jumlah Peserta</span><span class="kpi-detail-value">{{ $pemesananRuangan->jumlah_peserta }}</span></div>
-						<div class="kpi-detail-item"><span class="kpi-detail-label">Ruangan</span><span class="kpi-detail-value">{{ $pemesananRuangan->ruang['nama_ruang'] ?? '' }}</span></div>
-						<div class="kpi-detail-item"><span class="kpi-detail-label">Design Ruangan</span><span class="kpi-detail-value">{{ $pemesananRuangan->design_ruangan }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Status</span><span class="kpi-detail-value">{{ $pemesananRuangan->status_pj }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Status Pelaksana</span><span class="kpi-detail-value">{{ $pemesananRuangan->status_pelaksana }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Alasan Reject</span><span class="kpi-detail-value">{{ $pemesananRuangan->alasan_reject }}</span></div>
-						<div class="kpi-detail-item"><span class="kpi-detail-label">Keterangan</span><span class="kpi-detail-value">{{ $pemesananRuangan->keterangan }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Attachment</span><span class="kpi-detail-value">
 							@if ($pemesananRuangan->attachment == null)
 								-

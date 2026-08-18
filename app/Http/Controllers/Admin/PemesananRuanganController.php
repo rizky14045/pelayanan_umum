@@ -60,6 +60,7 @@ class PemesananRuanganController extends Controller
             "tanggal_selesai",
             "nama_acara",
             "pemohon",
+            "nama_pemesan",
             "waktu_awal",
             "waktu_akhir",
             "jumlah_peserta",

@@ -68,7 +68,8 @@
 				? 'Tanpa Ruangan'
 				: ($permohonanKonsumsi->nomor->no_pemesanan_ruangan ?? '');
 
-			$namaRuangan = optional(optional($permohonanKonsumsi->nomor)->ruang)->nama_ruang;
+			$linkedBooking = $permohonanKonsumsi->nomor;
+			$namaRuangan = optional(optional($linkedBooking)->ruang)->nama_ruang;
 
 			if ($permohonanKonsumsi->status_pj == 'Approved' && $permohonanKonsumsi->status_pelaksana == 'Terlaksana') {
 				$accentColor = '#F0C808';
@@ -81,6 +82,21 @@
 			}
 
 			$subtitle = \Illuminate\Support\Str::limit($permohonanKonsumsi->keterangan, 100);
+
+			$tanggalMulai = $permohonanKonsumsi->tanggal ? \Carbon\Carbon::parse($permohonanKonsumsi->tanggal)->format('d-m-Y') : '';
+			$tanggalSelesai = $permohonanKonsumsi->tanggal_selesai ? \Carbon\Carbon::parse($permohonanKonsumsi->tanggal_selesai)->format('d-m-Y') : '';
+			if ($permohonanKonsumsi->jam) {
+				$jamKonsumsi = \Carbon\Carbon::parse($permohonanKonsumsi->jam)->format('H:i');
+			} elseif ($linkedBooking && $linkedBooking->waktu_awal) {
+				// Jam tidak pernah diisi lewat form pengajuan konsumsi, jadi
+				// jatuhkan ke jam pemesanan ruangan yang terkait (jika ada).
+				$jamKonsumsi = date('H:i', $linkedBooking->waktu_awal);
+				if ($linkedBooking->waktu_akhir) {
+					$jamKonsumsi .= ' - ' . date('H:i', $linkedBooking->waktu_akhir);
+				}
+			} else {
+				$jamKonsumsi = '';
+			}
 
 			if ($permohonanKonsumsi->status_pj == 'Approved') {
 				$approvalBadge = ['icon' => 'fa-check-circle', 'class' => 'kpi-badge-success', 'label' => 'Disetujui'];
@@ -106,11 +122,15 @@
 							<span class="kpi-badge {{ $approvalBadge['class'] }}"><i class="fa {{ $approvalBadge['icon'] }}"></i> {{ $approvalBadge['label'] }}</span>
 							<span class="kpi-badge {{ $pelaksanaBadge['class'] }}"><i class="fa {{ $pelaksanaBadge['icon'] }}"></i> {{ $pelaksanaBadge['label'] }}</span>
 						</div>
-						@if($namaRuangan)
-							<div class="kpi-card-meta">
+						<div class="kpi-card-meta">
+							@if($namaRuangan)
 								<span><i class="fa fa-map-marker"></i> {{ $namaRuangan }}</span>
-							</div>
-						@endif
+							@endif
+							<span><i class="fa fa-calendar"></i> {{ $tanggalMulai }}@if($tanggalSelesai && $tanggalSelesai != $tanggalMulai) &ndash; {{ $tanggalSelesai }}@endif</span>
+							@if($jamKonsumsi)
+								<span><i class="fa fa-clock-o"></i> {{ $jamKonsumsi }}</span>
+							@endif
+						</div>
 						@if($subtitle)
 							<div class="kpi-card-subtitle">{{ $subtitle }}</div>
 						@endif
@@ -149,8 +169,6 @@
 						<div class="kpi-detail-item"><span class="kpi-detail-label">No Permohonan Konsumsi</span><span class="kpi-detail-value">{{ $noPermohonan }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Ruangan</span><span class="kpi-detail-value">{{ $namaRuangan ?: '-' }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Tanggal Pemesanan</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->created_at->format('d-m-Y H:i:s') }}</span></div>
-						<div class="kpi-detail-item"><span class="kpi-detail-label">Tanggal</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->tanggal ? \Carbon\Carbon::parse($permohonanKonsumsi->tanggal)->format('d-m-Y') : '' }}</span></div>
-						<div class="kpi-detail-item"><span class="kpi-detail-label">Tanggal Selesai</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->tanggal_selesai ? \Carbon\Carbon::parse($permohonanKonsumsi->tanggal_selesai)->format('d-m-Y') : '' }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Sumber Dana</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->sumber_dana }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Jenis Konsumsi</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->jenis_konsumsi }}</span></div>
 						<div class="kpi-detail-item"><span class="kpi-detail-label">Jumlah Konsumsi</span><span class="kpi-detail-value">{{ $permohonanKonsumsi->jumlah }}</span></div>
