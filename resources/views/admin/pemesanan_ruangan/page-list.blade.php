@@ -248,21 +248,13 @@
 					<label>Tanggal</label>
 					<input type="date" name="tanggal" class="form-control" required>
 				</div>
-				<div class="avail-form-field">
-					<label>Jam Mulai</label>
-					<input type="time" name="waktu_awal" class="form-control" value="08:00" required>
-				</div>
-				<div class="avail-form-field">
-					<label>Jam Selesai</label>
-					<input type="time" name="waktu_akhir" class="form-control" value="17:00" required>
-				</div>
 				<div class="avail-form-field" style="flex:0 0 auto;">
 					<button type="submit" class="avail-submit">Cek</button>
 				</div>
 			</div>
 		  </form>
 		  <div id="avail-results">
-			<div class="avail-empty">Pilih tanggal dan jam, lalu klik Cek untuk melihat ketersediaan ruangan.</div>
+			<div class="avail-empty">Pilih tanggal, lalu klik Cek untuk melihat ketersediaan ruangan.</div>
 		  </div>
 		</div>
 	  </div>

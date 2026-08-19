@@ -93,16 +93,18 @@ class PemesananRuanganController extends Controller
      */
     public function checkAvailability(Request $request)
     {
-        if (!$request->filled('tanggal') || !$request->filled('waktu_awal') || !$request->filled('waktu_akhir')) {
+        if (!$request->filled('tanggal')) {
             return response()->json([
-                'html' => '<div class="avail-empty">Tanggal, jam mulai, dan jam selesai wajib diisi.</div>',
+                'html' => '<div class="avail-empty">Tanggal wajib diisi.</div>',
             ]);
         }
 
+        // No time range from the UI anymore — check the whole day by
+        // spanning 00:00–23:59, so any booking that day counts as a conflict.
         $conflict = $this->resolveConflict(
             $request->get('tanggal'),
-            $request->get('waktu_awal'),
-            $request->get('waktu_akhir')
+            '00:00',
+            '23:59'
         );
 
         $ruangs = $this->ruang->get();
