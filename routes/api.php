@@ -20,7 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get('directions', function () {
     $from = request('from');
     $to = request('to');
-    $key = "AIzaSyDIgQi3_cRoEo5cNbpd4Y_bqZclMbf--HU"; // env('GMAP_API_KEY');
+    $key = config('services.google_maps.server_key');
 
     $query = http_build_query([
         'key' => $key,

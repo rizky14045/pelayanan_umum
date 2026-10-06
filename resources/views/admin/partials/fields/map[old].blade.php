@@ -42,7 +42,7 @@ $col        = isset($col)? $col : 'col-md-4';
 @endstyle
 
 @script('initialize-map-style')
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBSrThpCRzBbdGhfA27I6T4H-JkzEl4zk0&libraries=places"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.browser_key') }}&libraries=places"></script>
 @endscript
 
 @script
