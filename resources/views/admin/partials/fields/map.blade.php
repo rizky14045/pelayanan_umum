@@ -35,15 +35,13 @@ $col        = isset($col)? $col : 'col-md-4';
 <style>
 .map-input .map {
   height: 400px;
-  width: 600px;
-  magin-bottom: 15px;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 15px;
+  border-radius: 4px;
 }
 </style>
 @endstyle
-
-@script('initialize-map-style')
-<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.browser_key') }}&libraries=places"></script>
-@endscript
 
 @script
 @endscript

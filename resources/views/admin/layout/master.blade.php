@@ -75,6 +75,40 @@
     body.theme-blue .sidebar .legal .version { color: #fff !important; }
     body.theme-blue .sidebar .legal .copyright a { color: #fff !important; }
   </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <style>
+    .osm-autocomplete-wrapper { position: relative; }
+    .osm-autocomplete-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 99999;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-height: 220px;
+      overflow-y: auto;
+      margin-top: 2px;
+      padding: 0;
+      list-style: none;
+    }
+    .osm-autocomplete-item {
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      line-height: 1.35;
+      color: #333;
+    }
+    .osm-autocomplete-item:last-child { border-bottom: none; }
+    .osm-autocomplete-item:hover, .osm-autocomplete-item.active { background: #f0f7ff; color: #1F5C85; }
+    .osm-autocomplete-item .osm-icon { color: #e53935; font-size: 14px; margin-top: 2px; flex-shrink: 0; }
+  </style>
 
   @styles
   @show
@@ -172,6 +206,9 @@
 
   <!-- Custom Js -->
   <script src="{{ asset('vendor/admin-bsb/js/admin.js') }}"></script>
+  
+  <!-- Leaflet Core Js -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   
   @scripts
 
